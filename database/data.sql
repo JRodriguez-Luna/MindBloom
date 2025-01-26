@@ -8,10 +8,10 @@ VALUES
 -- Insert moods
 INSERT INTO "mood" ("moodName", "emojiPath", "createdAt")
 VALUES
-  ('happy', '/images/emoji/happy.svg', '2025-01-01 10:00:00'),
-  ('sad', '/images/emoji/sad.svg', '2025-01-01 10:00:00'),
   ('angry', '/images/emoji/angry.svg', '2025-01-01 10:00:00'),
+  ('sad', '/images/emoji/sad.svg', '2025-01-01 10:00:00'),
   ('neutral', '/images/emoji/neutral.svg', '2025-01-01 10:00:00'),
+  ('happy', '/images/emoji/happy.svg', '2025-01-01 10:00:00'),
   ('super', '/images/emoji/super.svg', '2025-01-01 10:00:00');
 
 -- Insert challenges

@@ -2,6 +2,8 @@
   width: 100%;
   height: 100vh;
   background-color: #0a1514;
+  color: white;
+  font-family: Figtree, serif;
 }
 
 * {

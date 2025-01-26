@@ -11,6 +11,11 @@ const db = new pg.Pool({
   },
 });
 
+type Mood = {
+  moodName: string;
+  emojiPath: string;
+};
+
 const app = express();
 
 // Create paths for static directories
@@ -22,16 +27,29 @@ app.use(express.static(reactStaticDir));
 app.use(express.static(uploadsStaticDir));
 app.use(express.json());
 
+app.get('/api/moods', async (req, res, next) => {
+  try {
+    const sql = `
+      select "moodName", "emojiPath"
+      from mood;
+    `;
+
+    const moods: Mood[] = (await db.query(sql)).rows;
+    if (moods.length === 0) {
+      throw new ClientError(404, 'No moods found.');
+    }
+
+    res.status(200).json(moods);
+  } catch (err) {
+    next(err);
+  }
+});
+
 app.post('/api/mood-logs/:userId', async (req, res, next) => {
   try {
     const { mood, detail } = req.body;
     const userId = req.params.userId;
     const points = 1;
-    const validMoods = ['happy', 'sad', 'angry', 'neutral', 'super'];
-
-    if (!validMoods.includes(mood)) {
-      throw new ClientError(400, 'One mood must be selected.');
-    }
 
     if (
       Number.isNaN(userId) ||
@@ -65,8 +83,6 @@ app.post('/api/mood-logs/:userId', async (req, res, next) => {
     if (!newLog) {
       throw new ClientError(404, `User with Id ${userId} does not exist.`);
     }
-
-    // ** Update the users current level **
 
     // update users total points.
     const sqlUpdateTotalPoints = `

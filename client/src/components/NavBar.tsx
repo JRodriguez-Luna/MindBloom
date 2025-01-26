@@ -1,24 +1,27 @@
 import challengeIcon from '/images/icons/challenges.svg';
 import dashboardIcon from '/images/icons/dashboard.svg';
 import profileIcon from '/images/icons/profile.svg';
-import './Header.css';
+import { Outlet, Link } from 'react-router-dom';
+import './NavBar.css';
 
-export function Header() {
+export function NavBar() {
   return (
     <>
       <div className="nav-container">
         <nav className="row icons">
-          <div className="column icon">
+          <Link>
             <img src={challengeIcon} alt="challenge" />
-          </div>
-          <div className="column icon">
+          </Link>
+          <Link to="/">
             <img src={dashboardIcon} alt="dashboard" />
-          </div>
-          <div className="column icon">
+          </Link>
+          <Link>
             <img src={profileIcon} alt="profile" />
-          </div>
+          </Link>
         </nav>
       </div>
+
+      <Outlet />
     </>
   );
 }
