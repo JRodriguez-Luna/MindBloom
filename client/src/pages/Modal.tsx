@@ -18,6 +18,8 @@ export function Modal({ children, isOpen, onClose }: Props) {
     }
   }, [isOpen]);
 
+  if (!isOpen) return null; // Don't render the modal or overlay if it's not open
+
   return (
     <div className="modal-overlay">
       <dialog className="journal-card" onClose={onClose} ref={modal}>
