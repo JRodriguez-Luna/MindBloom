@@ -41,13 +41,12 @@ export function Dashboard() {
   return (
     <>
       <div className="dashboard-container">
-        <div className="dashboard-col gap">
+        <div className="dashboard-col gap-6">
           {/* User's Name */}
           <div className="dashboard-row">
-            <h1>Hi, Jesus</h1>
+            <h1 className="text-3xl">Hi, Jesus</h1>
           </div>
 
-          {/* Future Features HERE */}
           {/* Stats */}
           <div className="dashboard-row space-between">
             <p>Your stats</p>
@@ -91,8 +90,7 @@ export function Dashboard() {
           <div className="dashboard-row center">
             <button
               onClick={openModal}
-              className="custom-button button-text cursor-pointer"
-              type="submit">
+              className="custom-button button-text cursor-pointer text-red-600">
               Log Mood
             </button>
           </div>
@@ -132,6 +130,7 @@ export function Dashboard() {
             maxLength={150}></textarea>
           <button
             type="submit"
+            onClick={closeModal}
             id="modal-button"
             className="custom-button cursor-pointer">
             Log Mood

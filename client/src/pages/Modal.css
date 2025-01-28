@@ -1,17 +1,4 @@
-.modal-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 389px;
-  height: 100%;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  background-color: rgba(0, 0, 0, 0.5);
-}
-
 .journal-card {
-  display: flex;
   width: 337px;
   height: 329px;
   background-color: #0a1514;
