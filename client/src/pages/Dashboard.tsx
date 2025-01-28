@@ -1,7 +1,7 @@
 import plantIcon from '/images/icons/plant.svg';
 import { Modal } from './Modal';
 import './Dashboard.css';
-import { useEffect, useState } from 'react';
+import { FormEvent, useEffect, useState } from 'react';
 
 type Mood = {
   moodName: string;
@@ -36,6 +36,36 @@ export function Dashboard() {
 
   const handleSelectedEmoji = (index: any) => {
     setSelectedEmoji(index);
+  };
+
+  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
+    try {
+      event.preventDefault();
+
+      if (selectEmoji === null) {
+        throw new Error('Please select a mood.');
+      }
+
+      const formData = new FormData(event.currentTarget);
+      const mood = formData.get('mood');
+      const detail = formData.get('detail');
+
+      const newMoodReq = await fetch('/api/mood-logs/1', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ mood, detail }),
+      });
+
+      if (!newMoodReq.ok) {
+        throw new Error('Failed to add new mood.');
+      }
+
+      closeModal();
+    } catch (err) {
+      console.error('Failed to add new mood.', err);
+    }
   };
 
   return (
@@ -98,7 +128,7 @@ export function Dashboard() {
       </div>
 
       <Modal isOpen={isOpen} onClose={closeModal}>
-        <form className="mood-entry-form dashboard-col" action="">
+        <form className="mood-entry-form dashboard-col" onSubmit={handleSubmit}>
           <p>How are you feeling today?</p>
           <div className="emojis dashboard-row">
             {moods.map((mood, index) => {
@@ -125,12 +155,11 @@ export function Dashboard() {
           </div>
           <p>What made you feel this way?</p>
           <textarea
-            name="journal-entry"
+            name="detail"
             className="journal-entry"
             maxLength={150}></textarea>
           <button
             type="submit"
-            onClick={closeModal}
             id="modal-button"
             className="custom-button cursor-pointer">
             Log Mood
