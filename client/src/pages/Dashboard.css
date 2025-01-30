@@ -34,9 +34,10 @@ img {
 }
 
 .fill-bar {
-  width: calc(100% / 3);
+  width: 100%;
   height: 12px;
   background-color: #1b998d;
+  transition: width ease 0.5;
 }
 
 .progress-bar,

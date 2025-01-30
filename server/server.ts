@@ -27,6 +27,41 @@ app.use(express.static(reactStaticDir));
 app.use(express.static(uploadsStaticDir));
 app.use(express.json());
 
+app.get('/api/progress/:userId', async (req, res, next) => {
+  try {
+    const userId = req.params.userId;
+
+    if (isNaN(+userId) || !Number.isInteger(+userId) || +userId < 1) {
+      throw new ClientError(404, `User with Id ${userId} does not exist.`);
+    }
+
+    const sql = `
+      select
+        "totalPoints", "level"
+      from progress
+      where "userId" = $1;
+    `;
+
+    const params = [userId];
+    const result = await db.query(sql, params);
+
+    const [userProgress] = result.rows;
+    if (!userProgress) {
+      throw new ClientError(
+        404,
+        `Failed to retrieve level and totalPoints for user with ID ${userId}.`
+      );
+    }
+
+    // Calculate progress percentage
+    const progress = ((userProgress.totalPoints % 10) / 10) * 100;
+
+    res.status(200).json({ ...userProgress, progress });
+  } catch (err) {
+    next(err); // Pass errors to the error-handling middleware
+  }
+});
+
 app.get('/api/moods', async (req, res, next) => {
   try {
     const sql = `

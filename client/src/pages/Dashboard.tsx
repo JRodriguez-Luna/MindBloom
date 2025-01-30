@@ -8,10 +8,19 @@ type Mood = {
   emojiPath: string;
 };
 
+type Progress = {
+  totalPoints: number;
+  level: number;
+  progress: number;
+};
+
 export function Dashboard() {
   const [isOpen, setIsOpen] = useState(false);
   const [moods, setMoods] = useState<Mood[]>([]);
+  const [progress, setProgress] = useState<Progress>();
   const [selectEmoji, setSelectedEmoji] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<unknown>();
 
   const openModal = () => setIsOpen(true);
   const closeModal = () => setIsOpen(false);
@@ -25,13 +34,30 @@ export function Dashboard() {
         }
 
         const data = await moodReq.json();
+        setIsLoading(false);
         setMoods(data);
       } catch (err) {
-        throw new Error('failed.');
+        setError(err);
+      }
+    }
+
+    async function getProgress() {
+      try {
+        const progressReq = await fetch('/api/progress/1');
+        if (!progressReq.ok) {
+          throw new Error(`Failed to fetch progress. (${progressReq.status})`);
+        }
+
+        const data = await progressReq.json();
+        setIsLoading(false);
+        setProgress(data);
+      } catch (err) {
+        setError(err);
       }
     }
 
     getMoods();
+    getProgress();
   }, []);
 
   const handleSelectedEmoji = (index: any) => {
@@ -40,8 +66,6 @@ export function Dashboard() {
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     try {
-      event.preventDefault();
-
       if (selectEmoji === null) {
         throw new Error('Please select a mood.');
       }
@@ -64,10 +88,22 @@ export function Dashboard() {
 
       closeModal();
     } catch (err) {
-      console.error('Failed to add new mood.', err);
+      setError(err);
     }
   };
 
+  if (isLoading) {
+    return <div>Loading...</div>;
+  }
+
+  if (error) {
+    console.error('fetch error:', error);
+    return (
+      <div>
+        Error! {error instanceof Error ? error.message : 'Unknown error'}
+      </div>
+    );
+  }
   return (
     <>
       <div className="dashboard-container">
@@ -110,9 +146,11 @@ export function Dashboard() {
           <div className="dashboard-row center">
             <div className="dashboard-col center progress">
               <img className="plant" src={plantIcon} alt="plant" />
-              <p>Your plant is level: 1</p>
+              <p>Your plant is level: {progress?.level}</p>
               <div className="progress-bar">
-                <div className="fill-bar"></div>
+                <div
+                  className="fill-bar"
+                  style={{ width: `${progress?.progress ?? 0}%` }}></div>
               </div>
             </div>
           </div>
@@ -121,7 +159,7 @@ export function Dashboard() {
             <button
               onClick={openModal}
               className="custom-button button-text cursor-pointer text-red-600">
-              Log Mood
+              Log Your Mood
             </button>
           </div>
         </div>
@@ -153,7 +191,7 @@ export function Dashboard() {
               );
             })}
           </div>
-          <p>What made you feel this way?</p>
+          <p>What contributed to this feeling?</p>
           <textarea
             name="detail"
             className="journal-entry"
