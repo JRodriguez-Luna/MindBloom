@@ -18,7 +18,7 @@ export function Dashboard() {
   const [isOpen, setIsOpen] = useState(false);
   const [moods, setMoods] = useState<Mood[]>([]);
   const [progress, setProgress] = useState<Progress>();
-  const [selectEmoji, setSelectedEmoji] = useState(null);
+  const [selectEmoji, setSelectedEmoji] = useState<number>();
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<unknown>();
 
