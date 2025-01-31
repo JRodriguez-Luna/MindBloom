@@ -1,3 +1,4 @@
+import logoIcon from '/images/icons/logo.svg';
 import { useState } from 'react';
 import { Outlet, Link } from 'react-router-dom';
 import './NavBar.css';
@@ -29,20 +30,26 @@ export function NavBar() {
 
   return (
     <>
-      <div className="nav-container">
+      <div className="nav-container desktop-nav-container">
         <nav className="row icons">
+          <img className="desktop-logo" src={logoIcon} alt="logo" />
           {navItem.map((item, index) => (
             <Link
               to={item.path}
               key={index}
               onClick={() => handleSelected(index)}>
-              <img
-                src={item.src}
-                alt={item.alt}
-                className={`${
-                  selected === index ? 'filter brightness-0 invert' : ''
-                }`}
-              />
+              <div
+                className={`icon-box ${
+                  selected === index ? 'selected-box' : ''
+                }`}>
+                <img
+                  src={item.src}
+                  alt={item.alt}
+                  className={`${
+                    selected === index ? 'filter brightness-0 invert' : ''
+                  }`}
+                />
+              </div>
             </Link>
           ))}
         </nav>
