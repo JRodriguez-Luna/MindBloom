@@ -1,7 +1,7 @@
 import plantIcon from '/images/icons/plant.svg';
 import { Modal } from './Modal';
 import './Dashboard.css';
-import { FormEvent, useEffect, useState } from 'react';
+import { ChangeEvent, FormEvent, useEffect, useState } from 'react';
 
 type Mood = {
   moodName: string;
@@ -19,6 +19,7 @@ export function Dashboard() {
   const [moods, setMoods] = useState<Mood[]>([]);
   const [progress, setProgress] = useState<Progress>();
   const [selectEmoji, setSelectedEmoji] = useState<number>();
+  const [counter, setCounter] = useState('');
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<unknown>();
 
@@ -60,8 +61,12 @@ export function Dashboard() {
     getProgress();
   }, []);
 
-  const handleSelectedEmoji = (index: any) => {
+  const handleSelectedEmoji = (index: number) => {
     setSelectedEmoji(index);
+  };
+
+  const handleCharacterCount = (event: ChangeEvent<HTMLTextAreaElement>) => {
+    setCounter(event.currentTarget.value);
   };
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
@@ -195,7 +200,11 @@ export function Dashboard() {
           <textarea
             name="detail"
             className="journal-entry"
-            maxLength={150}></textarea>
+            maxLength={150}
+            value={counter}
+            onChange={handleCharacterCount}
+          />
+          <p>{counter.length}/150</p>
           <button
             type="submit"
             id="modal-button"
