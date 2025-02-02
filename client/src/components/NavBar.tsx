@@ -12,14 +12,14 @@ export function NavBar() {
 
   const navItem = [
     {
-      path: '/challenges',
-      src: '/images/icons/challenges.svg',
-      alt: 'challenges',
-    },
-    {
       path: '/',
       src: '/images/icons/dashboard.svg',
       alt: 'dashboard',
+    },
+    {
+      path: '/challenges',
+      src: '/images/icons/challenges.svg',
+      alt: 'challenges',
     },
     {
       path: '/profile',
