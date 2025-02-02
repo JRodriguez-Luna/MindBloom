@@ -105,7 +105,7 @@ export function DesktopLayout() {
   return (
     <>
       <div className="desktop-container">
-        <div className="desktop-col-half left-content">
+        <div className="desktop-col-half left-content gap-4">
           {/* User's name */}
           <div className="desktop-row">
             <h1 className="text-3xl">Hi, Jesus</h1>
@@ -128,6 +128,18 @@ export function DesktopLayout() {
               <div className="flex h-full justify-center items-center">
                 <span>🔥 5 Streaks</span>
               </div>
+            </div>
+          </div>
+
+          {/* 7 Day Tracker */}
+          {/* Future Feature: Will be replaced when first mood is logged. */}
+          <div className="desktop-row space-between day-tracker">
+            <div className="desktop-col justify-start items-start">
+              <p>Once you start logging, we will track your progress here.</p>
+            </div>
+
+            <div className="desktop-col justify-start items-end">
+              <p>Circle Here</p>
             </div>
           </div>
         </div>
