@@ -3,7 +3,7 @@ import './Modal.css';
 
 type Props = {
   children: ReactNode;
-  isOpen: boolean;
+  isOpen: boolean | undefined;
   onClose: () => void;
 };
 

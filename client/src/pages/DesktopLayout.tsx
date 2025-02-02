@@ -1,110 +1,16 @@
 import plantIcon from '/images/icons/plant.svg';
 import './DesktopLayout.css';
-import { ChangeEvent, FormEvent, useEffect, useState } from 'react';
-import { Mood, Progress } from './Types';
+import { LayoutProps } from './Types';
 
-export function DesktopLayout() {
-  const [moods, setMoods] = useState<Mood[]>([]);
-  const [progress, setProgress] = useState<Progress>();
-  const [selectEmoji, setSelectedEmoji] = useState<number>();
-  const [counter, setCounter] = useState('');
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<unknown>();
-
-  async function getProgress() {
-    try {
-      const progressReq = await fetch('/api/progress/1');
-      if (!progressReq.ok) {
-        throw new Error(`Failed to fetch progress. (${progressReq.status})`);
-      }
-
-      const data = await progressReq.json();
-      setIsLoading(false);
-      setProgress(data);
-    } catch (err) {
-      setError(err);
-    }
-  }
-
-  useEffect(() => {
-    async function getMoods() {
-      try {
-        const moodReq = await fetch('/api/moods');
-        if (!moodReq.ok) {
-          throw new Error(`Failed to fetch moods. (${moodReq.status})`);
-        }
-
-        const data = await moodReq.json();
-        setIsLoading(false);
-        setMoods(data);
-      } catch (err) {
-        setError(err);
-      }
-    }
-
-    getMoods();
-    getProgress();
-  }, []);
-
-  const handleSelectedEmoji = (index: number) => {
-    setSelectedEmoji(index);
-  };
-
-  const handleCharacterCount = (event: ChangeEvent<HTMLTextAreaElement>) => {
-    setCounter(event.currentTarget.value);
-  };
-
-  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
-    try {
-      event.preventDefault();
-
-      if (selectEmoji === null) {
-        throw new Error('Please select a mood.');
-      }
-
-      const formData = new FormData(event.currentTarget);
-      const mood = formData.get('mood');
-      const detail = formData.get('detail');
-
-      const newMoodReq = await fetch('/api/mood-logs/1', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ mood, detail }),
-      });
-
-      if (!newMoodReq.ok) {
-        throw new Error('Failed to add new mood.');
-      }
-
-      // Clear inputs
-      setCounter('');
-      setSelectedEmoji(undefined);
-
-      // Check to see if currentTarget is not null, else it will Error.
-      if (event.currentTarget) {
-        event.currentTarget.reset();
-      }
-
-      await getProgress();
-    } catch (err) {
-      setError(err);
-    }
-  };
-
-  if (isLoading) {
-    return <div>Loading...</div>;
-  }
-
-  if (error) {
-    console.error('fetch error:', error);
-    return (
-      <div>
-        Error! {error instanceof Error ? error.message : 'Unknown error'}
-      </div>
-    );
-  }
+export function DesktopLayout({
+  moods,
+  progress,
+  selectEmoji,
+  counter,
+  handleSelectedEmoji,
+  handleCharacterCount,
+  handleSubmit,
+}: LayoutProps) {
   return (
     <>
       <div className="desktop-container">
