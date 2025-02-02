@@ -2,17 +2,7 @@ import plantIcon from '/images/icons/plant.svg';
 import { Modal } from './Modal';
 import './MobileLayout.css';
 import { ChangeEvent, FormEvent, useEffect, useState } from 'react';
-
-type Mood = {
-  moodName: string;
-  emojiPath: string;
-};
-
-type Progress = {
-  totalPoints: number;
-  level: number;
-  progress: number;
-};
+import { Mood, Progress } from './Types';
 
 export function MobileLayout() {
   const [isOpen, setIsOpen] = useState(false);
@@ -26,6 +16,21 @@ export function MobileLayout() {
   const openModal = () => setIsOpen(true);
   const closeModal = () => setIsOpen(false);
 
+  async function getProgress() {
+    try {
+      const progressReq = await fetch('/api/progress/1');
+      if (!progressReq.ok) {
+        throw new Error(`Failed to fetch progress. (${progressReq.status})`);
+      }
+
+      const data = await progressReq.json();
+      setIsLoading(false);
+      setProgress(data);
+    } catch (err) {
+      setError(err);
+    }
+  }
+
   useEffect(() => {
     async function getMoods() {
       try {
@@ -37,21 +42,6 @@ export function MobileLayout() {
         const data = await moodReq.json();
         setIsLoading(false);
         setMoods(data);
-      } catch (err) {
-        setError(err);
-      }
-    }
-
-    async function getProgress() {
-      try {
-        const progressReq = await fetch('/api/progress/1');
-        if (!progressReq.ok) {
-          throw new Error(`Failed to fetch progress. (${progressReq.status})`);
-        }
-
-        const data = await progressReq.json();
-        setIsLoading(false);
-        setProgress(data);
       } catch (err) {
         setError(err);
       }
@@ -71,6 +61,8 @@ export function MobileLayout() {
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     try {
+      event.preventDefault();
+
       if (selectEmoji === null) {
         throw new Error('Please select a mood.');
       }
@@ -91,7 +83,17 @@ export function MobileLayout() {
         throw new Error('Failed to add new mood.');
       }
 
+      // Clear inputs
+      setCounter('');
+      setSelectedEmoji(undefined);
+
+      // Check to see if currentTarget is not null, else it will Error.
+      if (event.currentTarget) {
+        event.currentTarget.reset();
+      }
+
       closeModal();
+      await getProgress();
     } catch (err) {
       setError(err);
     }

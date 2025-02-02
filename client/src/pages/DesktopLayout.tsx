@@ -1,17 +1,7 @@
 import plantIcon from '/images/icons/plant.svg';
 import './DesktopLayout.css';
 import { ChangeEvent, FormEvent, useEffect, useState } from 'react';
-
-type Mood = {
-  moodName: string;
-  emojiPath: string;
-};
-
-type Progress = {
-  totalPoints: number;
-  level: number;
-  progress: number;
-};
+import { Mood, Progress } from './Types';
 
 export function DesktopLayout() {
   const [moods, setMoods] = useState<Mood[]>([]);
@@ -20,6 +10,21 @@ export function DesktopLayout() {
   const [counter, setCounter] = useState('');
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<unknown>();
+
+  async function getProgress() {
+    try {
+      const progressReq = await fetch('/api/progress/1');
+      if (!progressReq.ok) {
+        throw new Error(`Failed to fetch progress. (${progressReq.status})`);
+      }
+
+      const data = await progressReq.json();
+      setIsLoading(false);
+      setProgress(data);
+    } catch (err) {
+      setError(err);
+    }
+  }
 
   useEffect(() => {
     async function getMoods() {
@@ -32,21 +37,6 @@ export function DesktopLayout() {
         const data = await moodReq.json();
         setIsLoading(false);
         setMoods(data);
-      } catch (err) {
-        setError(err);
-      }
-    }
-
-    async function getProgress() {
-      try {
-        const progressReq = await fetch('/api/progress/1');
-        if (!progressReq.ok) {
-          throw new Error(`Failed to fetch progress. (${progressReq.status})`);
-        }
-
-        const data = await progressReq.json();
-        setIsLoading(false);
-        setProgress(data);
       } catch (err) {
         setError(err);
       }
@@ -66,6 +56,8 @@ export function DesktopLayout() {
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     try {
+      event.preventDefault();
+
       if (selectEmoji === null) {
         throw new Error('Please select a mood.');
       }
@@ -85,6 +77,17 @@ export function DesktopLayout() {
       if (!newMoodReq.ok) {
         throw new Error('Failed to add new mood.');
       }
+
+      // Clear inputs
+      setCounter('');
+      setSelectedEmoji(undefined);
+
+      // Check to see if currentTarget is not null, else it will Error.
+      if (event.currentTarget) {
+        event.currentTarget.reset();
+      }
+
+      await getProgress();
     } catch (err) {
       setError(err);
     }

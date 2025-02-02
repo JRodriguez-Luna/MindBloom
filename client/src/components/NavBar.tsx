@@ -4,7 +4,7 @@ import { Outlet, Link } from 'react-router-dom';
 import './NavBar.css';
 
 export function NavBar() {
-  const [selected, isSelected] = useState<number>(1);
+  const [selected, isSelected] = useState<number>(0);
 
   const handleSelected = (index: number) => {
     isSelected(index);
