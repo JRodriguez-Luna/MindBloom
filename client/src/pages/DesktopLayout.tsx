@@ -1,5 +1,4 @@
 import plantIcon from '/images/icons/plant.svg';
-import checkmarkIcon from '/images/icons/checkmark.svg';
 import './DesktopLayout.css';
 import { ChangeEvent, FormEvent, useEffect, useState } from 'react';
 
@@ -19,7 +18,6 @@ export function DesktopLayout() {
   const [progress, setProgress] = useState<Progress>();
   const [selectEmoji, setSelectedEmoji] = useState<number>();
   const [counter, setCounter] = useState('');
-  const [isLogged, setIsLogged] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<unknown>();
 
@@ -68,8 +66,6 @@ export function DesktopLayout() {
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     try {
-      event.preventDefault();
-
       if (selectEmoji === null) {
         throw new Error('Please select a mood.');
       }
@@ -89,11 +85,6 @@ export function DesktopLayout() {
       if (!newMoodReq.ok) {
         throw new Error('Failed to add new mood.');
       }
-
-      setIsLogged(true);
-      setTimeout(() => {
-        window.location.reload();
-      }, 2000);
     } catch (err) {
       setError(err);
     }
@@ -201,17 +192,8 @@ export function DesktopLayout() {
                 <button
                   type="submit"
                   id="modal-button"
-                  className="custom-button cursor-pointer"
-                  disabled={isLogged}>
-                  {isLogged ? (
-                    <img
-                      className="filter brightness-0 invert"
-                      src={checkmarkIcon}
-                      alt="checkmark"
-                    />
-                  ) : (
-                    'Log Mood'
-                  )}
+                  className="custom-button cursor-pointer">
+                  Log Mood
                 </button>
               </form>
             </div>
