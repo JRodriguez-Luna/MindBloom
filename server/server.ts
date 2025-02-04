@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-unused-vars -- Remove when used */
 import 'dotenv/config';
 import express from 'express';
-import pg, { Client } from 'pg';
+import pg from 'pg';
 import { ClientError, errorMiddleware } from './lib/index.js';
 
 const db = new pg.Pool({
@@ -158,6 +158,24 @@ app.post('/api/mood-logs/:userId', async (req, res, next) => {
       updatedTotalPoints: updatedProgress.totalPoints,
       updatedLevel: newLevel,
     });
+  } catch (err) {
+    next(err);
+  }
+});
+
+app.get('/api/challenges', async (req, res, next) => {
+  try {
+    const sql = `
+      select *
+      from challenges;
+    `;
+
+    const challenges = (await db.query(sql)).rows;
+    if (!challenges) {
+      throw new ClientError(404, `No challenges found.`);
+    }
+
+    res.status(200).json(challenges);
   } catch (err) {
     next(err);
   }
