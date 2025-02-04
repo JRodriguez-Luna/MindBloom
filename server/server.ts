@@ -16,6 +16,13 @@ type Mood = {
   emojiPath: string;
 };
 
+type ChallengeCompletion = {
+  userId: number;
+  challengeId: number;
+  isCompleted: boolean;
+  completionDate: Date | null;
+};
+
 const app = express();
 
 // Create paths for static directories
@@ -163,6 +170,7 @@ app.post('/api/mood-logs/:userId', async (req, res, next) => {
   }
 });
 
+//  Get stored challenges
 app.get('/api/challenges', async (req, res, next) => {
   try {
     const sql = `
@@ -176,6 +184,55 @@ app.get('/api/challenges', async (req, res, next) => {
     }
 
     res.status(200).json(challenges);
+  } catch (err) {
+    next(err);
+  }
+});
+
+//  Update challenges if completed or not
+app.post('/api/user-challenges/completion/:userId', async (req, res, next) => {
+  try {
+    const { challengeId, isComplete } = req.body;
+    const userId = req.params.userId;
+
+    if (typeof isComplete !== 'boolean') {
+      throw new ClientError(400, `Invalid. 'isComplete' must be a boolean.`);
+    }
+
+    if (
+      Number.isNaN(challengeId) ||
+      !Number.isInteger(+challengeId) ||
+      Number(challengeId) < 1
+    ) {
+      throw new ClientError(400, 'Invalid challengeId.');
+    }
+
+    if (
+      Number.isNaN(userId) ||
+      !Number.isInteger(+userId) ||
+      Number(userId) < 1
+    ) {
+      throw new ClientError(400, 'Invalid userId.');
+    }
+
+    const sql = `
+      update user_challenges
+      set
+        "isCompleted" = $1,
+        "completionDate" = CURRENT_DATE
+      where
+        "userId" = $2 and "challengeId" = $3
+      returning *;
+    `;
+
+    const [challengeCompleted]: ChallengeCompletion[] = (
+      await db.query(sql, [isComplete, userId, challengeId])
+    ).rows;
+    if (!challengeCompleted) {
+      throw new ClientError(404, `User with ID ${userId} does not exists.`);
+    }
+
+    res.status(200).json(challengeCompleted);
   } catch (err) {
     next(err);
   }
