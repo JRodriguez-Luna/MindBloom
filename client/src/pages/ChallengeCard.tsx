@@ -3,7 +3,7 @@ import handLeafIcon from '/images/icons/handleaf.svg';
 import flowerBranchIcon from '/images/icons/flowerbranch.svg';
 import './Challenges.css';
 
-export function Challenges() {
+export function ChallengeCard() {
   return (
     <>
       <div className="challenge-container">
@@ -29,21 +29,6 @@ export function Challenges() {
                 </div>
                 <div>
                   <img src={plantIcon} alt="daily-icon" />
-                </div>
-              </button>
-
-              {/* Series of Daily Challenges */}
-              {/* Sample of the challenges displayed */}
-              <button className="challenge challenge-selected">
-                <div className="challenge-detail challenge-row gap-6">
-                  <img src={plantIcon} alt="daily-icon" />
-                  <div>
-                    <h3 className="text-l">Gratitude Journal</h3>
-                    <p className="text-gray-400">
-                      Write 3 things you are grateful for today.
-                    </p>
-                  </div>
-                  <span>+15pts</span>
                 </div>
               </button>
 
