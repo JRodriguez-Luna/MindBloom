@@ -17,7 +17,23 @@ type ChallengeCardProps = {
 export function ChallengeCard({
   challenges,
   handleCategoryToggle,
+  selectedCategory,
 }: ChallengeCardProps) {
+  const challengeList = [
+    {
+      category: 'Daily',
+      icon: plantIcon,
+    },
+    {
+      category: 'Weekly',
+      icon: handLeafIcon,
+    },
+    {
+      category: 'Monthly',
+      icon: flowerBranchIcon,
+    },
+  ];
+
   return (
     <>
       <div className="challenge-container">
@@ -35,104 +51,50 @@ export function ChallengeCard({
           {/* Challenges Category */}
           <div className="challenge-col items-center ">
             <div className="challenges">
-              {/* Daily */}
-              <button
-                className="challenge-box"
-                onClick={() => handleCategoryToggle('daily')}>
-                <div>
-                  <h3 className="text-l">Daily Challenge</h3>
-                  <p className="text-sm text-gray-600">0/3 Completed</p>
-                </div>
-                <div>
-                  <img src={plantIcon} alt="daily-icon" />
-                </div>
-              </button>
+              {/* Category Challenges */}
+              {challengeList.map((l) => (
+                <div key={l.category}>
+                  <button
+                    className="challenge-box"
+                    onClick={() => handleCategoryToggle(l.category)}>
+                    <div>
+                      <h3 className="text-l">{`${l.category} Challenge`}</h3>
+                      <p className="text-sm text-gray-600">0/3 Completed</p>
+                    </div>
+                    <div>
+                      <img src={l.icon} alt={`${l.category}`} />
+                    </div>
+                  </button>
 
-              {/* Series of Daily Challenges */}
-
-              {challenges.map(
-                (challenge, index) =>
-                  challenge.frequency === 'daily' && (
-                    <button
-                      key={index}
-                      className="challenge challenge-selected">
-                      <div className="challenge-detail challenge-row gap-6">
-                        <img src={plantIcon} alt="daily-icon" />
-                        <div>
-                          <h3 className="text-l w-50">{challenge.title}</h3>
-                          <p className="text-xs text-gray-400">
-                            {challenge.description}
-                          </p>
-                        </div>
-                        <span>+{challenge.points}</span>
-                      </div>
-                    </button>
-                  )
-              )}
-
-              {/* Weekly */}
-              <button className="challenge-box">
-                <div>
-                  <h3 className="text-l">Weekly Challenge</h3>
-                  <p className="text-sm text-gray-600">0/3 Completed</p>
+                  {/* Filter */}
+                  {selectedCategory === l.category &&
+                    challenges.map(
+                      (challenge, index) =>
+                        challenge.frequency ===
+                          selectedCategory.toLowerCase() && (
+                          <button
+                            key={index}
+                            className="challenge challenge-selected">
+                            <div className="challenge-detail challenge-row gap-6">
+                              <img
+                                src={l.icon}
+                                alt={`${challenge.frequency}-icon`}
+                              />
+                              <div>
+                                <h3 className="text-l w-50">
+                                  {challenge.title}
+                                </h3>
+                                <p className="text-xs text-gray-400">
+                                  {challenge.description}
+                                </p>
+                              </div>
+                              <span>+{challenge.points}</span>
+                            </div>
+                          </button>
+                        )
+                    )}
                 </div>
-                <div>
-                  <img src={handLeafIcon} alt="weekly-icon" />
-                </div>
-              </button>
-
-              {/* Series of Weekly Challenges */}
-              {challenges.map(
-                (challenge, index) =>
-                  challenge.frequency === 'weekly' && (
-                    <button
-                      key={index}
-                      className="challenge challenge-selected">
-                      <div className="challenge-detail challenge-row gap-6">
-                        <img src={handLeafIcon} alt="daily-icon" />
-                        <div>
-                          <h3 className="text-l w-50">{challenge.title}</h3>
-                          <p className="text-xs text-gray-400">
-                            {challenge.description}
-                          </p>
-                        </div>
-                        <span>+{challenge.points}</span>
-                      </div>
-                    </button>
-                  )
-              )}
-
-              {/* Monthly */}
-              <button className="challenge-box">
-                <div>
-                  <h3 className="text-l">Monthly Challenge</h3>
-                  <p className="text-sm text-gray-600">0/3 Completed</p>
-                </div>
-                <div>
-                  <img src={flowerBranchIcon} alt="monthly-icon" />
-                </div>
-              </button>
-
-              {/* Series of Monthly Challenges */}
-              {challenges.map(
-                (challenge, index) =>
-                  challenge.frequency === 'monthly' && (
-                    <button
-                      key={index}
-                      className="challenge challenge-selected">
-                      <div className="challenge-detail challenge-row gap-6">
-                        <img src={flowerBranchIcon} alt="daily-icon" />
-                        <div>
-                          <h3 className="text-l w-50">{challenge.title}</h3>
-                          <p className="text-xs text-gray-400">
-                            {challenge.description}
-                          </p>
-                        </div>
-                        <span>+{challenge.points}</span>
-                      </div>
-                    </button>
-                  )
-              )}
+              ))}
             </div>
           </div>
         </div>
