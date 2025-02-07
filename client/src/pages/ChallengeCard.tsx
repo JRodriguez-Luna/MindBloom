@@ -1,6 +1,7 @@
 import plantIcon from '/images/icons/plant.svg';
 import handLeafIcon from '/images/icons/handleaf.svg';
 import flowerBranchIcon from '/images/icons/flowerbranch.svg';
+import { ContinueButton } from '../components/ContinueButton';
 import './ChallengeCard.css';
 
 type ChallengeCardProps = {
@@ -23,7 +24,7 @@ export function ChallengeCard({
   selectedCategory,
   selectedChallenge,
 }: ChallengeCardProps) {
-  const challengeList = [
+  const challengeCategories = [
     {
       category: 'Daily',
       icon: plantIcon,
@@ -37,6 +38,9 @@ export function ChallengeCard({
       icon: flowerBranchIcon,
     },
   ];
+
+  // console
+  console.log('selectedChallenge', selectedChallenge);
 
   return (
     <>
@@ -56,22 +60,22 @@ export function ChallengeCard({
           <div className="challenge-col items-center ">
             <div className="challenges">
               {/* Category Challenges */}
-              {challengeList.map((l) => (
-                <div key={l.category}>
+              {challengeCategories.map((category) => (
+                <div key={category.category}>
                   <button
                     className="challenge-box"
-                    onClick={() => handleCategoryToggle(l.category)}>
+                    onClick={() => handleCategoryToggle(category.category)}>
                     <div>
-                      <h3 className="text-l">{`${l.category} Challenge`}</h3>
+                      <h3 className="text-l">{`${category.category} Challenge`}</h3>
                       <p className="text-sm text-gray-600">0/3 Completed</p>
                     </div>
                     <div>
-                      <img src={l.icon} alt={`${l.category}`} />
+                      <img src={category.icon} alt={`${category.category}`} />
                     </div>
                   </button>
 
                   {/* Filter */}
-                  {selectedCategory === l.category &&
+                  {selectedCategory === category.category &&
                     challenges.map(
                       (challenge, index) =>
                         challenge.frequency ===
@@ -86,7 +90,7 @@ export function ChallengeCard({
                             onClick={() => handleChallengeToggle(index)}>
                             <div className="challenge-detail challenge-row gap-6">
                               <img
-                                src={l.icon}
+                                src={category.icon}
                                 alt={`${challenge.frequency}-icon`}
                               />
                               <div>
@@ -108,6 +112,8 @@ export function ChallengeCard({
           </div>
         </div>
       </div>
+
+      <ContinueButton active={selectedChallenge !== null} />
     </>
   );
 }
