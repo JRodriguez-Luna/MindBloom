@@ -1,77 +1,62 @@
-import plantIcon from '/images/icons/plant.svg';
-import handLeafIcon from '/images/icons/handleaf.svg';
-import flowerBranchIcon from '/images/icons/flowerbranch.svg';
-import './Challenges.css';
+import { useEffect, useState } from 'react';
+import { ChallengeCard } from './ChallengeCard';
+
+type Challenge = {
+  title: string;
+  description: string;
+  frequency: string;
+  points: number;
+};
 
 export function Challenges() {
-  return (
-    <>
-      <div className="challenge-container">
-        <div className="challenge-col gap-4">
-          {/* Title */}
-          <div className="challenge-row">
-            <h1 className="text-3xl">Challenges</h1>
-          </div>
+  const [challenge, setChallenge] = useState<Challenge[]>([]);
+  const [selectedCategory, setSelectedCategory] = useState<string>('');
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<unknown>();
 
-          {/* Motivation */}
-          <div className="challenge-row justify-center italic">
-            Grow your wellness plant today!
-          </div>
+  useEffect(() => {
+    async function getChallenges() {
+      try {
+        const res = await fetch('/api/challenges');
+        if (!res.ok) {
+          throw new Error(`Failed to fetch challenges. (${res.status})`);
+        }
 
-          {/* Challenges Category */}
-          <div className="challenge-col items-center">
-            <div className="challenges">
-              {/* Daily */}
-              <button className="challenge-box">
-                <div>
-                  <h3 className="text-l">Daily Challenge</h3>
-                  <p className="text-sm text-gray-600">0/3 Completed</p>
-                </div>
-                <div>
-                  <img src={plantIcon} alt="daily-icon" />
-                </div>
-              </button>
+        const data = await res.json();
+        console.log('challenge json:', data);
+        setChallenge(data);
+        setIsLoading(false);
+        console.log('challenge', challenge);
+      } catch (err) {
+        setError(err);
+      }
+    }
 
-              {/* Series of Daily Challenges */}
-              {/* Sample of the challenges displayed */}
-              <button className="challenge challenge-selected">
-                <div className="challenge-detail challenge-row gap-6">
-                  <img src={plantIcon} alt="daily-icon" />
-                  <div>
-                    <h3 className="text-l">Gratitude Journal</h3>
-                    <p className="text-gray-400">
-                      Write 3 things you are grateful for today.
-                    </p>
-                  </div>
-                  <span>+15pts</span>
-                </div>
-              </button>
+    getChallenges();
+  }, []);
 
-              {/* Weekly */}
-              <button className="challenge-box">
-                <div>
-                  <h3 className="text-l">Weekly Challenge</h3>
-                  <p className="text-sm text-gray-600">0/3 Completed</p>
-                </div>
-                <div>
-                  <img src={handLeafIcon} alt="weekly-icon" />
-                </div>
-              </button>
+  const handleCategoryToggle = (category: string) => {
+    setSelectedCategory((prev) => (prev === category ? '' : category));
+  };
 
-              {/* Monthly */}
-              <button className="challenge-box">
-                <div>
-                  <h3 className="text-l">Monthly Challenge</h3>
-                  <p className="text-sm text-gray-600">0/3 Completed</p>
-                </div>
-                <div>
-                  <img src={flowerBranchIcon} alt="monthly-icon" />
-                </div>
-              </button>
-            </div>
-          </div>
-        </div>
+  if (isLoading) {
+    return <div>Loading...</div>;
+  }
+
+  if (error || !challenge) {
+    console.error('fetch error:', error);
+    return (
+      <div>
+        Error! {error instanceof Error ? error.message : 'Unknown error'}
       </div>
-    </>
+    );
+  }
+
+  return (
+    <ChallengeCard
+      challenges={challenge}
+      handleCategoryToggle={handleCategoryToggle}
+      selectedCategory={selectedCategory}
+    />
   );
 }
