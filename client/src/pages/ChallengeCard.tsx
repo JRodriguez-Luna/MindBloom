@@ -11,13 +11,17 @@ type ChallengeCardProps = {
     points: number;
   }[];
   handleCategoryToggle: (category: string) => void;
+  handleChallengeToggle: (challenge: number) => void;
   selectedCategory: string;
+  selectedChallenge: number | null;
 };
 
 export function ChallengeCard({
   challenges,
   handleCategoryToggle,
+  handleChallengeToggle,
   selectedCategory,
+  selectedChallenge,
 }: ChallengeCardProps) {
   const challengeList = [
     {
@@ -74,7 +78,12 @@ export function ChallengeCard({
                           selectedCategory.toLowerCase() && (
                           <button
                             key={index}
-                            className="challenge challenge-selected">
+                            className={`challenge ${
+                              selectedChallenge === index
+                                ? 'challenge-selected'
+                                : ''
+                            }`}
+                            onClick={() => handleChallengeToggle(index)}>
                             <div className="challenge-detail challenge-row gap-6">
                               <img
                                 src={l.icon}

@@ -11,6 +11,9 @@ type Challenge = {
 export function Challenges() {
   const [challenge, setChallenge] = useState<Challenge[]>([]);
   const [selectedCategory, setSelectedCategory] = useState<string>('');
+  const [selectedChallenge, setSelectedChallenge] = useState<number | null>(
+    null
+  );
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<unknown>();
 
@@ -39,6 +42,10 @@ export function Challenges() {
     setSelectedCategory((prev) => (prev === category ? '' : category));
   };
 
+  const handleChallengeToggle = (challenge: number) => {
+    setSelectedChallenge(challenge);
+  };
+
   if (isLoading) {
     return <div>Loading...</div>;
   }
@@ -56,7 +63,9 @@ export function Challenges() {
     <ChallengeCard
       challenges={challenge}
       handleCategoryToggle={handleCategoryToggle}
+      handleChallengeToggle={handleChallengeToggle}
       selectedCategory={selectedCategory}
+      selectedChallenge={selectedChallenge}
     />
   );
 }
