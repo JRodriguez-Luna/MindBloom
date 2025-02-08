@@ -2,14 +2,15 @@ import './ContinueButton.css';
 
 type ContinueProps = {
   active: boolean;
+  onClick?: () => void;
 };
 
-export function ContinueButton({ active }: ContinueProps) {
-  console.log('active', active);
-
+export function ContinueButton({ active, onClick }: ContinueProps) {
   return (
     <div className="continue-container">
-      <button className={`continue-button ${active ? '' : 'hidden'}`}>
+      <button
+        onClick={onClick}
+        className={`continue-button ${active ? '' : 'hidden'}`}>
         Continue
       </button>
     </div>
