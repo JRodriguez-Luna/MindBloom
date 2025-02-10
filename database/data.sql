@@ -19,7 +19,6 @@ INSERT INTO "challenges" ("title", "description", "frequency", "points", "create
 VALUES
   ('Gratitude Journal', 'Write 3 things you are grateful for today.', 'daily', 15, '2025-01-01 10:00:00'),
   ('Deep Breathing Exercise', 'Take 3 deep breaths, inhale for 4 seconds, hold for 4, exhale for 4.', 'daily', 15, '2025-01-01 10:00:00'),
-  ('Focus On The Present', 'Pause for 5 minutes. Notice 3 things you can see, 2 things you can hear, and 1 thing you can feel.', 'daily', 20, '2025-01-01 10:00:00'),
   ('Refresh Your Morning', '30 mins phone-free after waking up.', 'weekly', 15, '2025-01-01 10:00:00'),
   ('Take A Short Walk', 'Take a peaceful 15-30 minute walk to reset your day.', 'weekly', 15, '2025-01-01 10:00:00'),
   ('Mindful Reading', 'Spend 30 mins reading something you enjoy.', 'weekly', 20, '2025-01-01 10:00:00'),

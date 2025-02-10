@@ -2,7 +2,7 @@ import plantIcon from '/images/icons/plant.svg';
 import handLeafIcon from '/images/icons/handleaf.svg';
 import flowerBranchIcon from '/images/icons/flowerbranch.svg';
 import { ContinueButton } from '../components/ContinueButton';
-import { Modal } from './Modal';
+import { RenderChallenge } from '../components/RenderChallenge';
 import './ChallengeCard.css';
 import { useState } from 'react';
 
@@ -82,7 +82,7 @@ export function ChallengeCard({
                         challenge.frequency ===
                           selectedCategory.toLowerCase() && (
                           <button
-                            key={index}
+                            key={challenge.title}
                             className={`challenge ${
                               selectedChallenge === index
                                 ? 'challenge-selected'
@@ -118,55 +118,13 @@ export function ChallengeCard({
         active={selectedChallenge !== null}
         onClick={() => setIsOpen(true)}
       />
-      <Modal isOpen={isOpen} onClose={() => setIsOpen(false)}>
-        <form className="challenge-entry-form challenge-col gap-10 ">
-          <h2 className="text-l">Write 3 things you are grateful for today.</h2>
-          <div className="challenge-col w-full gap-3">
-            <label
-              className="challenge-row items-center justify-between w-full gap-3"
-              htmlFor="">
-              1.
-              <textarea
-                name="entry"
-                className="challenge-entry"
-                placeholder="I am grateful for..."
-              />
-            </label>
 
-            <label
-              className="challenge-row items-center justify-between w-full gap-3"
-              htmlFor="">
-              2.
-              <textarea
-                name="entry"
-                className="challenge-entry"
-                placeholder="I am grateful for..."
-              />
-            </label>
-
-            <label
-              className="challenge-row items-center justify-between w-full gap-3"
-              htmlFor="">
-              3.
-              <textarea
-                name="entry"
-                className="challenge-entry"
-                placeholder="I am grateful for..."
-              />
-            </label>
-          </div>
-
-          <div className="flex w-full justify-between items-center">
-            <button>Cancel</button>
-            <button
-              type="submit"
-              id="modal-button"
-              className="custom-button cursor-pointer">
-              Save
-            </button>
-          </div>
-        </form>
-      </Modal>
+      <RenderChallenge
+        selectedCategory={selectedCategory}
+        selectedChallenge={selectedChallenge}
+        isOpen={isOpen}
+        setIsOpen={setIsOpen}
+      />
     </>
   );
 }
