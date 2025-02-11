@@ -1,5 +1,6 @@
 import { FormEvent, useState } from 'react';
 import { Modal } from '../pages/Modal';
+import { useNavigate } from 'react-router-dom';
 
 type RenderChallengeProps = {
   selectedCategory: string;
@@ -15,6 +16,8 @@ export function RenderChallenge({
   setIsOpen,
 }: RenderChallengeProps) {
   const [error, setError] = useState<boolean[]>([]);
+  const navigate = useNavigate();
+
   if (!isOpen) return null;
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
@@ -32,16 +35,27 @@ export function RenderChallenge({
         return;
       }
 
-      console.log('Form data:', entries);
+      // Get challenges
+      const challengesResponse = await fetch('/api/challenges');
+      if (!challengesResponse.ok) throw new Error('Failed to fetch challenges');
+      const challenges = await challengesResponse.json();
+      const challengeId = challenges[selectedChallenge!].id;
+
+      const res = await fetch('/api/user-challenges/completion/1', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ challengeId, isComplete: true }),
+      });
+
+      if (!res.ok) throw new Error('Submission failed');
+
       form.reset(); // Reset form inputs
       setIsOpen(false);
       setError([]);
     } catch (err) {
-      console.error('err', err);
+      console.error('Error:', err);
     }
   };
-
-  console.log('Array Error:', error);
 
   switch (selectedCategory) {
     case 'Daily':
@@ -100,17 +114,21 @@ export function RenderChallenge({
           );
 
         case 1:
-          return (
-            <Modal isOpen={isOpen} onClose={() => setIsOpen(false)}>
-              <div>Another Challenge</div>
-            </Modal>
-          );
+          navigate('/time-challenge'); // Time-Challenge
+          break;
 
         default:
           return null;
       }
+      break;
 
     case 'Weekly':
+      return (
+        <Modal isOpen={isOpen} onClose={() => setIsOpen(false)}>
+          <div>No challenges defined yet.</div>
+        </Modal>
+      );
+
     case 'Monthly':
       return (
         <Modal isOpen={isOpen} onClose={() => setIsOpen(false)}>
