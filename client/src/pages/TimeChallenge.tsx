@@ -25,9 +25,10 @@ export function TimeChallenge() {
 
           <div className="time-col justify-center items-center gap-12">
             <p className="text-5xl">4</p>
+            <p className="text-base italic">Inhale, Hold, Exhale</p>
             <div className="pause-play-buttons">
               <FaPauseCircle className="text-5xl" />
-              <FaPlay className="text-5xl" />
+              <FaPlay className="text-5xl hidden" />
             </div>
 
             {/* Dots to be transformed into mini logo */}
