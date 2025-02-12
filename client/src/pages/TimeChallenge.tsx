@@ -14,6 +14,7 @@ export function TimeChallenge() {
   const [toggle, setToggle] = useState(false);
   const [intervalId, setIntervalId] = useState<NodeJS.Timeout | number>();
   const instructions = ['Inhale', 'Hold', 'Exhale'];
+  const [roundsCompleted, setRoundsCompleted] = useState(0);
 
   function handleClick() {
     if (!toggle) {
@@ -22,21 +23,29 @@ export function TimeChallenge() {
           if (prev > 0) {
             return prev - 1; // Decrement
           } else {
-            // Circle around the array
-            setIndex((prevIndex) =>
-              prevIndex >= instructions.length - 1 ? 0 : prevIndex + 1
-            );
-            return 4; // Reset the timer for the next round.
+            setIndex((prevIndex) => {
+              const newIndex =
+                prevIndex >= instructions.length - 1 ? 0 : prevIndex + 1;
+              console.log(
+                `Timer reached 0. Updating index from ${prevIndex} to ${newIndex}`
+              );
+              if (newIndex === 0) {
+                setRoundsCompleted((prevRound) => prevRound + 1);
+                console.log(`Rounds completed: ${roundsCompleted + 1}`);
+              }
+              return newIndex;
+            });
+            return 4; // Reset the timer
           }
         });
       }, 1000);
       setIntervalId(id);
     } else {
       clearInterval(intervalId);
+      console.log('Interval cleared');
     }
-
-    // Play or Pause
     setToggle((prevToggle) => !prevToggle);
+    console.log(`Toggle set to: ${!toggle}`);
   }
 
   return (
@@ -67,11 +76,15 @@ export function TimeChallenge() {
               />
             </div>
 
-            {/* Dots to be transformed into mini logo */}
             <div className="time-row justify-center items-center text-3xl">
-              <GoDotFill />
-              <GoDotFill />
-              <GoDotFill />
+              {[0, 1, 2].map((dotIndex) => (
+                <GoDotFill
+                  key={dotIndex}
+                  className={
+                    roundsCompleted === dotIndex ? 'text-teal-400' : ''
+                  }
+                />
+              ))}
             </div>
           </div>
         </div>
