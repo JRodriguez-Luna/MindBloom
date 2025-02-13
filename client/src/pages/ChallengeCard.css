@@ -41,12 +41,14 @@
   padding: 0 15px;
   border: solid #333d3c;
   border-radius: 25px;
+  margin: 10px;
 }
 
 .challenge-detail {
   width: 100%;
   height: 100px;
   display: flex;
+  justify-content: space-evenly;
   align-items: center;
 }
 
@@ -78,4 +80,30 @@
   border: none;
   outline: none;
   resize: none;
+}
+
+@media screen and (width >= 768px) {
+  .challenge-container {
+    padding: 20px 20px 100px 120px;
+  }
+
+  .challenge {
+    width: 350px;
+  }
+
+  .challenges {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+  }
+
+  .challenge-box {
+    width: 350px;
+    margin: 10px;
+  }
+
+  .continue-container {
+    width: calc(100% / 3);
+    left: calc(100% / 2.8);
+  }
 }
