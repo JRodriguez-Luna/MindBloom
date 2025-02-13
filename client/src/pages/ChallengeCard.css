@@ -41,7 +41,7 @@
   padding: 0 15px;
   border: solid #333d3c;
   border-radius: 25px;
-  margin: 10px;
+  margin: 10px 0;
 }
 
 .challenge-detail {
@@ -89,6 +89,7 @@
 
   .challenge {
     width: 350px;
+    margin: 10px;
   }
 
   .challenges {

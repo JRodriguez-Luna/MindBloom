@@ -68,7 +68,6 @@ export function ChallengeCard({
                     onClick={() => handleCategoryToggle(category.category)}>
                     <div>
                       <h3 className="text-l">{`${category.category} Challenge`}</h3>
-                      <p className="text-sm text-gray-600">0/3 Completed</p>
                     </div>
                     <div>
                       <img src={category.icon} alt={`${category.category}`} />
