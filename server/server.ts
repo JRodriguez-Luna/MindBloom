@@ -189,6 +189,32 @@ app.get('/api/challenges', async (req, res, next) => {
   }
 });
 
+// Get users challenge status on current date
+app.get('/api/user-challenges/:userId', async (req, res, next) => {
+  try {
+    const userId = req.params.userId;
+    if (isNaN(+userId) || !Number.isInteger(+userId) || +userId < 1) {
+      throw new ClientError(400, 'Invalid userId.');
+    }
+
+    const sql = `
+      select "challengeId", "isCompleted"
+      from user_challenges
+      where "userId" = $1
+      order by "challengeId" asc;
+    `;
+
+    const userChallenges = (await db.query(sql, [userId])).rows;
+    if (!userChallenges) {
+      throw new ClientError(404, `User with id ${userId} does not exists.`);
+    }
+
+    res.status(200).json(userChallenges);
+  } catch (err) {
+    next(err);
+  }
+});
+
 //  Update challenges if completed or not
 app.post('/api/user-challenges/completion/:userId', async (req, res, next) => {
   try {

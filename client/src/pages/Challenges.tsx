@@ -1,11 +1,18 @@
 import { useEffect, useState } from 'react';
 import { ChallengeCard } from './ChallengeCard';
 
-type Challenge = {
+export type Challenge = {
+  id: number;
   title: string;
   description: string;
   frequency: string;
   points: number;
+};
+
+export type UserChallenge = {
+  challengeId: number;
+  isCompleted: boolean;
+  completionDate: Date | null;
 };
 
 export function Challenges() {
@@ -14,6 +21,7 @@ export function Challenges() {
   const [selectedChallenge, setSelectedChallenge] = useState<number | null>(
     null
   );
+  const [userChallenge, setUserChallenge] = useState<UserChallenge[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<unknown>();
 
@@ -25,11 +33,27 @@ export function Challenges() {
           throw new Error(`Failed to fetch challenges. (${res.status})`);
         }
 
+        // user response
+        const userRes = await fetch('/api/user-challenges/1');
+        if (!userRes.ok) {
+          throw new Error(
+            `Failed to fetch user_challenges. (${userRes.status})`
+          );
+        }
+
+        // challenges data
         const data = await res.json();
         console.log('challenge json:', data);
+
+        // user challenge data
+        const userData = await userRes.json();
+        console.log('user_challenge json:', userData);
+
         setChallenge(data);
+        setUserChallenge(userData);
         setIsLoading(false);
         console.log('challenge', challenge);
+        console.log('userCompletion', userChallenge);
       } catch (err) {
         setError(err);
       }
@@ -62,6 +86,7 @@ export function Challenges() {
   return (
     <ChallengeCard
       challenges={challenge}
+      userChallenges={userChallenge}
       handleCategoryToggle={handleCategoryToggle}
       handleChallengeToggle={handleChallengeToggle}
       selectedCategory={selectedCategory}

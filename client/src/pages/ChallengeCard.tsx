@@ -1,18 +1,16 @@
 import plantIcon from '/images/icons/plant.svg';
 import handLeafIcon from '/images/icons/handleaf.svg';
+import checkmarkIcon from '/images/icons/checkmark.svg';
 import flowerBranchIcon from '/images/icons/flowerbranch.svg';
 import { ContinueButton } from '../components/ContinueButton';
 import { RenderChallenge } from '../components/RenderChallenge';
+import { UserChallenge, Challenge } from './Challenges';
 import './ChallengeCard.css';
 import { useState } from 'react';
 
 type ChallengeCardProps = {
-  challenges: {
-    title: string;
-    description: string;
-    frequency: string;
-    points: number;
-  }[];
+  challenges: Challenge[];
+  userChallenges: UserChallenge[];
   handleCategoryToggle: (category: string) => void;
   handleChallengeToggle: (challenge: number) => void;
   selectedCategory: string;
@@ -21,6 +19,7 @@ type ChallengeCardProps = {
 
 export function ChallengeCard({
   challenges,
+  userChallenges,
   handleCategoryToggle,
   handleChallengeToggle,
   selectedCategory,
@@ -81,7 +80,7 @@ export function ChallengeCard({
                         challenge.frequency ===
                           selectedCategory.toLowerCase() && (
                           <button
-                            key={challenge.title}
+                            key={challenge.id}
                             className={`challenge ${
                               selectedChallenge === index
                                 ? 'challenge-selected'
@@ -101,7 +100,16 @@ export function ChallengeCard({
                                   {challenge.description}
                                 </p>
                               </div>
-                              <span>+{challenge.points}</span>
+                              {/* Should show the points or the checkmarkIcon */}
+                              {userChallenges.some(
+                                (uc) =>
+                                  uc.challengeId === challenge.id &&
+                                  uc.isCompleted
+                              ) ? (
+                                <img src={checkmarkIcon} alt="Completed" />
+                              ) : (
+                                <span>+{challenge.points}</span>
+                              )}
                             </div>
                           </button>
                         )
