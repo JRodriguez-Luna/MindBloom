@@ -28,11 +28,11 @@ VALUES
 INSERT INTO "user_challenges" ("userId", "challengeId", "isCompleted", "completionDate", "createdAt")
 VALUES
   (1, 1, false, NULL, '2025-01-01 10:00:00'),
-  (1, 2, true, '2025-01-02', '2025-01-01 10:00:00'),
+  (1, 2, false, '2025-01-02', '2025-01-01 10:00:00'),
   (1, 3, false, NULL, '2025-01-01 10:00:00'),
-  (2, 1, true, '2025-01-02', '2025-01-02 10:00:00'),
+  (2, 1, false, '2025-01-02', '2025-01-02 10:00:00'),
   (2, 4, false, NULL, '2025-01-02 10:00:00'),
-  (3, 5, true, '2025-01-31', '2025-01-03 10:00:00');
+  (3, 5, false, '2025-01-31', '2025-01-03 10:00:00');
 
 -- Insert mood logs
 INSERT INTO "mood_logs" ("userId", "moodId", "detail", "points", "logDate", "createdAt")

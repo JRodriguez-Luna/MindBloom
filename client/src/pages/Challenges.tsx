@@ -33,6 +33,20 @@ export function Challenges() {
           throw new Error(`Failed to fetch challenges. (${res.status})`);
         }
 
+        // challenges data
+        const data = await res.json();
+        console.log('challenge json:', data);
+
+        setChallenge(data);
+        setIsLoading(false);
+        console.log('challenge', challenge);
+      } catch (err) {
+        setError(err);
+      }
+    }
+
+    async function getUserChallenges() {
+      try {
         // user response
         const userRes = await fetch('/api/user-challenges/1');
         if (!userRes.ok) {
@@ -41,18 +55,11 @@ export function Challenges() {
           );
         }
 
-        // challenges data
-        const data = await res.json();
-        console.log('challenge json:', data);
-
         // user challenge data
         const userData = await userRes.json();
         console.log('user_challenge json:', userData);
 
-        setChallenge(data);
         setUserChallenge(userData);
-        setIsLoading(false);
-        console.log('challenge', challenge);
         console.log('userCompletion', userChallenge);
       } catch (err) {
         setError(err);
@@ -60,6 +67,7 @@ export function Challenges() {
     }
 
     getChallenges();
+    getUserChallenges();
   }, []);
 
   const handleCategoryToggle = (category: string) => {
