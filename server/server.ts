@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-unused-vars -- Remove when used */
 import 'dotenv/config';
 import express from 'express';
-import pg from 'pg';
+import pg, { Client } from 'pg';
 import { ClientError, errorMiddleware } from './lib/index.js';
 
 const db = new pg.Pool({
@@ -218,7 +218,7 @@ app.get('/api/user-challenges/:userId', async (req, res, next) => {
 //  Update challenges if completed or not
 app.post('/api/user-challenges/completion/:userId', async (req, res, next) => {
   try {
-    const { challengeId, isComplete } = req.body;
+    const { challengeId, isComplete, points } = req.body;
     const userId = req.params.userId;
 
     if (typeof isComplete !== 'boolean') {
@@ -241,6 +241,14 @@ app.post('/api/user-challenges/completion/:userId', async (req, res, next) => {
       throw new ClientError(400, 'Invalid userId.');
     }
 
+    if (
+      Number.isNaN(points) ||
+      !Number.isInteger(+points) ||
+      Number(points) < 1
+    ) {
+      throw new ClientError(400, 'Invalid points.');
+    }
+
     const sql = `
       update user_challenges
       set
@@ -258,7 +266,45 @@ app.post('/api/user-challenges/completion/:userId', async (req, res, next) => {
       throw new ClientError(404, `User with ID ${userId} does not exists.`);
     }
 
-    res.status(200).json(challengeCompleted);
+    // update users total points.
+    const sqlUpdateTotalPoints = `
+      update progress
+      set "totalPoints" = "totalPoints" + $1
+      where "userId" = $2
+      returning *;
+    `;
+
+    const [updatedProgress] = (
+      await db.query(sqlUpdateTotalPoints, [points, userId])
+    ).rows;
+
+    // Increment every 10 points
+    const newLevel = Math.floor(updatedProgress.totalPoints / 10) + 1;
+
+    // only trigger if level is greater than the current level
+    if (newLevel > updatedProgress.level) {
+      const sqlUpdateLevel = `
+        update progress
+        set "level" = $1
+        where "userId" = $2
+        returning "level";
+      `;
+
+      const [updateLevel] = (await db.query(sqlUpdateLevel, [newLevel, userId]))
+        .rows;
+      if (!updateLevel) {
+        throw new ClientError(
+          404,
+          `Failed to update level for user with ID ${userId}.`
+        );
+      }
+    }
+
+    res.status(200).json({
+      challengeCompleted,
+      updatedProgress,
+      updatedLevel: newLevel,
+    });
   } catch (err) {
     next(err);
   }
