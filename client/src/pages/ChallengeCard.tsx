@@ -13,8 +13,10 @@ type ChallengeCardProps = {
   userChallenges: UserChallenge[];
   handleCategoryToggle: (category: string) => void;
   handleChallengeToggle: (challenge: number) => void;
+  handlePoints: (points: number) => void;
   selectedCategory: string;
   selectedChallenge: number | null;
+  points: number | null;
 };
 
 export function ChallengeCard({
@@ -22,8 +24,10 @@ export function ChallengeCard({
   userChallenges,
   handleCategoryToggle,
   handleChallengeToggle,
+  handlePoints,
   selectedCategory,
   selectedChallenge,
+  points,
 }: ChallengeCardProps) {
   const challengeCategories = [
     {
@@ -86,7 +90,10 @@ export function ChallengeCard({
                                 ? 'challenge-selected'
                                 : ''
                             }`}
-                            onClick={() => handleChallengeToggle(index)}>
+                            onClick={() => {
+                              handleChallengeToggle(index);
+                              handlePoints(challenge.points);
+                            }}>
                             <div className="challenge-detail challenge-row gap-6">
                               <img
                                 src={category.icon}
@@ -131,6 +138,7 @@ export function ChallengeCard({
         selectedChallenge={selectedChallenge}
         isOpen={isOpen}
         setIsOpen={setIsOpen}
+        points={points}
       />
     </>
   );

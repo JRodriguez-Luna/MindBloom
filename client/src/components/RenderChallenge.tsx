@@ -7,6 +7,7 @@ type RenderChallengeProps = {
   selectedChallenge: number | null;
   isOpen: boolean;
   setIsOpen: (open: boolean) => void;
+  points: number | null;
 };
 
 export function RenderChallenge({
@@ -14,6 +15,7 @@ export function RenderChallenge({
   selectedChallenge,
   isOpen,
   setIsOpen,
+  points,
 }: RenderChallengeProps) {
   const [error, setError] = useState<boolean[]>([]);
   const navigate = useNavigate();
@@ -44,7 +46,7 @@ export function RenderChallenge({
       const res = await fetch('/api/user-challenges/completion/1', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ challengeId, isComplete: true }),
+        body: JSON.stringify({ challengeId, isComplete: true, points }),
       });
 
       if (!res.ok) throw new Error('Submission failed');
@@ -61,6 +63,7 @@ export function RenderChallenge({
     case 'Daily':
       switch (selectedChallenge) {
         case 0:
+          console.log(points);
           return (
             <Modal isOpen={isOpen} onClose={() => setIsOpen(false)}>
               <form

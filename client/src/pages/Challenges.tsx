@@ -21,6 +21,7 @@ export function Challenges() {
   const [selectedChallenge, setSelectedChallenge] = useState<number | null>(
     null
   );
+  const [points, setPoints] = useState<number | null>(null);
   const [userChallenge, setUserChallenge] = useState<UserChallenge[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<unknown>();
@@ -78,6 +79,10 @@ export function Challenges() {
     setSelectedChallenge(challenge);
   };
 
+  const handlePoints = (points: number) => {
+    setPoints(points);
+  };
+
   if (isLoading) {
     return <div>Loading...</div>;
   }
@@ -97,8 +102,10 @@ export function Challenges() {
       userChallenges={userChallenge}
       handleCategoryToggle={handleCategoryToggle}
       handleChallengeToggle={handleChallengeToggle}
+      handlePoints={handlePoints}
       selectedCategory={selectedCategory}
       selectedChallenge={selectedChallenge}
+      points={points}
     />
   );
 }
