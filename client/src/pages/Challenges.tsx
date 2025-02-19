@@ -26,6 +26,25 @@ export function Challenges() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<unknown>();
 
+  async function getUserChallenges() {
+    try {
+      // user response
+      const userRes = await fetch('/api/user-challenges/1');
+      if (!userRes.ok) {
+        throw new Error(`Failed to fetch user_challenges. (${userRes.status})`);
+      }
+
+      // user challenge data
+      const userData = await userRes.json();
+      console.log('user_challenge json:', userData);
+
+      setUserChallenge(userData);
+      console.log('userCompletion', userChallenge);
+    } catch (err) {
+      setError(err);
+    }
+  }
+
   useEffect(() => {
     async function getChallenges() {
       try {
@@ -41,27 +60,6 @@ export function Challenges() {
         setChallenge(data);
         setIsLoading(false);
         console.log('challenge', challenge);
-      } catch (err) {
-        setError(err);
-      }
-    }
-
-    async function getUserChallenges() {
-      try {
-        // user response
-        const userRes = await fetch('/api/user-challenges/1');
-        if (!userRes.ok) {
-          throw new Error(
-            `Failed to fetch user_challenges. (${userRes.status})`
-          );
-        }
-
-        // user challenge data
-        const userData = await userRes.json();
-        console.log('user_challenge json:', userData);
-
-        setUserChallenge(userData);
-        console.log('userCompletion', userChallenge);
       } catch (err) {
         setError(err);
       }
@@ -106,6 +104,7 @@ export function Challenges() {
       selectedCategory={selectedCategory}
       selectedChallenge={selectedChallenge}
       points={points}
+      refreshUserChallenges={getUserChallenges}
     />
   );
 }

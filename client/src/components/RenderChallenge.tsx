@@ -8,6 +8,7 @@ type RenderChallengeProps = {
   isOpen: boolean;
   setIsOpen: (open: boolean) => void;
   points: number | null;
+  refreshUserChallenges: () => Promise<void>;
 };
 
 export function RenderChallenge({
@@ -16,6 +17,7 @@ export function RenderChallenge({
   isOpen,
   setIsOpen,
   points,
+  refreshUserChallenges,
 }: RenderChallengeProps) {
   const [error, setError] = useState<boolean[]>([]);
   const navigate = useNavigate();
@@ -54,6 +56,7 @@ export function RenderChallenge({
       form.reset(); // Reset form inputs
       setIsOpen(false);
       setError([]);
+      refreshUserChallenges();
     } catch (err) {
       console.error('Error:', err);
     }

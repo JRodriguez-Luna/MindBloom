@@ -17,6 +17,7 @@ type ChallengeCardProps = {
   selectedCategory: string;
   selectedChallenge: number | null;
   points: number | null;
+  refreshUserChallenges: () => Promise<void>;
 };
 
 export function ChallengeCard({
@@ -28,6 +29,7 @@ export function ChallengeCard({
   selectedCategory,
   selectedChallenge,
   points,
+  refreshUserChallenges,
 }: ChallengeCardProps) {
   const challengeCategories = [
     {
@@ -139,6 +141,7 @@ export function ChallengeCard({
         isOpen={isOpen}
         setIsOpen={setIsOpen}
         points={points}
+        refreshUserChallenges={refreshUserChallenges}
       />
     </>
   );
