@@ -83,16 +83,7 @@ export function TimeChallenge() {
               )}
             </div>
             <div className="time-row justify-center items-center text-3xl">
-              {[0, 1, 2].map((dotIndex: number) => (
-                <GoDotFill
-                  key={dotIndex}
-                  className={`${
-                    roundsCompleted > dotIndex
-                      ? 'text-teal-400'
-                      : 'text-gray-400'
-                  }`}
-                />
-              ))}
+              {/*Future Feature: Dots or n rounds here */}
             </div>
           </div>
         </div>
