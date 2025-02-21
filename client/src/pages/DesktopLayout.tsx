@@ -54,7 +54,7 @@ export function DesktopLayout({
         </div>
 
         {/* Title */}
-        <div className="desktop-col-half right-content gap-14">
+        <div className="desktop-col-half right-content gap-5">
           <div className="desktop-row">
             <h1 className="text-xl">Log Mood</h1>
           </div>

@@ -1,0 +1,19 @@
+.continue-container {
+  width: 100%;
+  display: flex;
+  position: fixed;
+  bottom: calc(100% / 8);
+  justify-content: center;
+}
+
+.continue-button {
+  width: calc(100% / 1.1);
+  height: 60px;
+  background-color: white;
+  color: black;
+  border-radius: 15px;
+}
+
+.hidden {
+  display: none;
+}
