@@ -21,6 +21,10 @@
   margin-top: 100px;
 }
 
+.pause-play-buttons > .continue-container {
+  right: 0;
+}
+
 @media screen and (width >= 768px) {
   .leaf {
     width: 40%;

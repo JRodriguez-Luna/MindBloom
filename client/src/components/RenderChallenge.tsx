@@ -120,7 +120,7 @@ export function RenderChallenge({
           );
 
         case 1:
-          navigate('/time-challenge'); // Time-Challenge
+          navigate('/time-challenge', { state: { selectedChallenge, points } });
           break;
 
         default:
