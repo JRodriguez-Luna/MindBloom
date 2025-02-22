@@ -7,6 +7,7 @@ export type Progress = {
   totalPoints: number;
   level: number;
   progress: number;
+  currentStreak: number;
 };
 
 export type LayoutProps = {

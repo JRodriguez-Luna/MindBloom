@@ -36,7 +36,7 @@ export function MobileLayout({
               <span>💫 26 challenges</span>
             </div>
             <div className="box dashboard-col center">
-              <span>🔥 5 Streaks</span>
+              <span>🔥 {progress?.currentStreak} Streaks</span>
             </div>
           </div>
 
