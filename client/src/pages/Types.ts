@@ -8,6 +8,7 @@ export type Progress = {
   level: number;
   progress: number;
   currentStreak: number;
+  completedChallenges: number;
 };
 
 export type LayoutProps = {

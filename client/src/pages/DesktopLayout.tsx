@@ -29,7 +29,7 @@ export function DesktopLayout({
           <div className="desktop-row justify-between">
             <div className="bg-black w-full h-20 rounded-2xl padding">
               <div className="flex h-full justify-center items-center">
-                <span>💫 26 challenges</span>
+                <span>💫 {progress?.completedChallenges} challenges</span>
               </div>
             </div>
 

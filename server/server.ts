@@ -44,9 +44,15 @@ app.get('/api/progress/:userId', async (req, res, next) => {
 
     const sql = `
       select
-        "totalPoints", "level", "currentStreak"
-      from progress
-      where "userId" = $1;
+        "p"."totalPoints", "p"."level", "p"."currentStreak",
+        COUNT(*) FILTER (where "uc"."isCompleted" = true)::int as "completedChallenges"
+      from progress as "p"
+      join
+        "user_challenges" as "uc" using("userId")
+      where
+        "userId" = $1
+      group by
+        "p"."totalPoints", "p"."level", "p"."currentStreak";
     `;
 
     const params = [userId];
