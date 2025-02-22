@@ -45,6 +45,6 @@ VALUES
 -- Insert progress data
 INSERT INTO "progress" ("userId", "totalPoints", "level", "currentStreak", "lastLogDate")
 VALUES
-  (1, 50, 2, 2, '2025-01-02'),
-  (2, 40, 1, 1, '2025-01-02'),
-  (3, 35, 1, 2, '2025-01-03');
+  (1, 50, 2, 0, '2025-01-02'),
+  (2, 40, 1, 0, '2025-01-02'),
+  (3, 35, 1, 0, '2025-01-03');

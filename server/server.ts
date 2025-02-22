@@ -169,12 +169,19 @@ app.post('/api/mood-logs/:userId', async (req, res, next) => {
     // Streak Tracking
     const streakSql = `
       update "progress"
-      set "currentStreak" = "currentStreak" + 1
+      set
+        "currentStreak" = case
+          when "lastLogDate" is null then 1
+          when $2::date = "lastLogDate" + interval '1 day' then "currentStreak" + 1
+          when $2::date > "lastLogDate" + interval '1 day' then 1
+          else "currentStreak"
+        end,
+        "lastLogDate" = greatest("lastLogDate", $2::date)
       where "userId" = $1
       returning "currentStreak";
     `;
 
-    const [streak] = (await db.query(streakSql, [userId])).rows;
+    const [streak] = (await db.query(streakSql, [userId, newLog.logDate])).rows;
     if (!streak) {
       throw new ClientError(
         404,
@@ -212,7 +219,7 @@ app.get('/api/challenges', async (req, res, next) => {
   }
 });
 
-// Get users challenge status on current date
+// Get users challenge status
 app.get('/api/user-challenges/:userId', async (req, res, next) => {
   try {
     const userId = req.params.userId;
