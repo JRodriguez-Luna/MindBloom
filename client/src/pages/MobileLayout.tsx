@@ -33,7 +33,7 @@ export function MobileLayout({
           {/* Challenges and Streaks */}
           <div className="dashboard-row space-between">
             <div className="box dashboard-col center">
-              <span>💫 {progress?.completedChallenges} challenges</span>
+              <span>💫 {progress?.completedChallenges} Challenges</span>
             </div>
             <div className="box dashboard-col center">
               <span>🔥 {progress?.currentStreak} Streaks</span>
