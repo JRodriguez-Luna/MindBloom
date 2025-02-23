@@ -93,7 +93,7 @@ app.get('/api/moods', async (req, res, next) => {
   }
 });
 
-app.get('/api/mood/:userId', async (req, res, next) => {
+app.get('/api/mood/recent/:userId', async (req, res, next) => {
   try {
     const userId = req.params.userId;
 
@@ -105,8 +105,10 @@ app.get('/api/mood/:userId', async (req, res, next) => {
       throw new ClientError(400, 'Invalid userId.');
     }
 
+    //  Get the users most recent log script
     const sql = `
-      select *
+      select
+        "logDate", "moodId"
       from mood_logs
       where "userId" = $1
       order by "createdAt" desc
