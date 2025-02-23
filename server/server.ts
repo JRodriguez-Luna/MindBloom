@@ -106,7 +106,7 @@ app.get('/api/mood/recent/:userId', async (req, res, next) => {
     }
 
     //  Get the users most recent log script
-    const sql = `
+    const sqlRecentMood = `
       select
         "logDate", "moodId"
       from mood_logs
@@ -115,12 +115,26 @@ app.get('/api/mood/recent/:userId', async (req, res, next) => {
       limit 1;
     `;
 
-    const [mood] = (await db.query(sql, [userId])).rows;
-    if (!mood) {
+    const [recentMood] = (await db.query(sqlRecentMood, [userId])).rows;
+    if (!recentMood) {
       throw new ClientError(404, `User with Id ${userId} does not exist.`);
     }
 
-    res.status(200).json(mood);
+    const sqlMood = `
+      select "emojiPath"
+      from mood
+      where "id" = $1;
+    `;
+
+    const [moodPath] = (await db.query(sqlMood, [recentMood.moodId])).rows;
+    if (!moodPath) {
+      throw new ClientError(404, `Id ${recentMood.moodId} does not exist.`);
+    }
+
+    res.status(200).json({
+      logDate: recentMood.logDate,
+      emojiMood: moodPath.emojiPath,
+    });
 
     //  Todo:
     //  Get the users most recent mood log of the day
