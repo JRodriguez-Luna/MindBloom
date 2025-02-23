@@ -93,6 +93,48 @@ app.get('/api/moods', async (req, res, next) => {
   }
 });
 
+app.get('/api/mood/:userId', async (req, res, next) => {
+  try {
+    const userId = req.params.userId;
+
+    if (
+      Number.isNaN(userId) ||
+      !Number.isInteger(+userId) ||
+      Number(userId) < 1
+    ) {
+      throw new ClientError(400, 'Invalid userId.');
+    }
+
+    const sql = `
+      select *
+      from mood_logs
+      where "userId" = $1
+      order by "createdAt" desc
+      limit 1;
+    `;
+
+    const [mood] = (await db.query(sql, [userId])).rows;
+    if (!mood) {
+      throw new ClientError(404, `User with Id ${userId} does not exist.`);
+    }
+
+    res.status(200).json(mood);
+
+    //  Todo:
+    //  Get the users most recent mood log of the day
+    //  Display it onto "Todays" category
+    //  Next day, it will be what was "Today" be the day it was created or something
+    //  Ex: If today was monday, and its a new day, then we will enqueue, and put it as "M" for monday
+    //  Then the new "today", will be marked
+    //  Keep this cycle going to a maximum of 7 days, that will also include "Today" being the 7th.
+    //  After we will dequeue if the list is maxed out.
+
+    // For this case: We just need to limit 1, which is the most recent mood logged for the day
+  } catch (err) {
+    next(err);
+  }
+});
+
 app.post('/api/mood-logs/:userId', async (req, res, next) => {
   try {
     const { mood, detail } = req.body;
