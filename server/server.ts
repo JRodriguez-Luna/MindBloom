@@ -44,9 +44,15 @@ app.get('/api/progress/:userId', async (req, res, next) => {
 
     const sql = `
       select
-        "totalPoints", "level"
-      from progress
-      where "userId" = $1;
+        "p"."totalPoints", "p"."level", "p"."currentStreak",
+        COUNT(*) FILTER (where "uc"."isCompleted" = true)::int as "completedChallenges"
+      from progress as "p"
+      join
+        "user_challenges" as "uc" using("userId")
+      where
+        "userId" = $1
+      group by
+        "p"."totalPoints", "p"."level", "p"."currentStreak";
     `;
 
     const params = [userId];
@@ -56,7 +62,7 @@ app.get('/api/progress/:userId', async (req, res, next) => {
     if (!userProgress) {
       throw new ClientError(
         404,
-        `Failed to retrieve level and totalPoints for user with ID ${userId}.`
+        `Failed to retrieve level, totalPoints, and currentStreak for user with ID ${userId}.`
       );
     }
 
@@ -160,10 +166,34 @@ app.post('/api/mood-logs/:userId', async (req, res, next) => {
       }
     }
 
+    // Streak Tracking
+    const streakSql = `
+      update "progress"
+      set
+        "currentStreak" = case
+          when "lastLogDate" is null then 1
+          when $2::date = "lastLogDate" + interval '1 day' then "currentStreak" + 1
+          when $2::date > "lastLogDate" + interval '1 day' then 1
+          else "currentStreak"
+        end,
+        "lastLogDate" = greatest("lastLogDate", $2::date)
+      where "userId" = $1
+      returning "currentStreak";
+    `;
+
+    const [streak] = (await db.query(streakSql, [userId, newLog.logDate])).rows;
+    if (!streak) {
+      throw new ClientError(
+        404,
+        `Failed to update streak for user with ID ${userId}`
+      );
+    }
+
     res.status(201).json({
       newLog,
       updatedTotalPoints: updatedProgress.totalPoints,
       updatedLevel: newLevel,
+      streak,
     });
   } catch (err) {
     next(err);
@@ -189,7 +219,7 @@ app.get('/api/challenges', async (req, res, next) => {
   }
 });
 
-// Get users challenge status on current date
+// Get users challenge status
 app.get('/api/user-challenges/:userId', async (req, res, next) => {
   try {
     const userId = req.params.userId;
