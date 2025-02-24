@@ -1,6 +1,8 @@
 import plantIcon from '/images/icons/plant.svg';
 import './DesktopLayout.css';
 import { LayoutProps } from './Types';
+import Calendar from 'react-calendar';
+import './Calendar.css';
 
 export function DesktopLayout({
   moods,
@@ -50,6 +52,10 @@ export function DesktopLayout({
             <div className="desktop-col justify-start items-end">
               <p>Circle Here</p>
             </div>
+          </div>
+
+          <div className="desktop-row">
+            <Calendar />
           </div>
         </div>
 
