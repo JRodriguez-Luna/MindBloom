@@ -133,7 +133,7 @@ app.get('/api/mood/recent/:userId', async (req, res, next) => {
 
     res.status(200).json({
       logDate: recentMood.logDate,
-      emojiMood: moodPath.emojiPath,
+      emojiPath: moodPath.emojiPath,
     });
 
     //  Todo:
