@@ -93,8 +93,9 @@ app.get('/api/moods', async (req, res, next) => {
   }
 });
 
-app.get('/api/mood/recent/:userId', async (req, res, next) => {
+app.get('/api/mood-tracking/:userId', async (req, res, next) => {
   try {
+    const { date } = req.query;
     const userId = req.params.userId;
 
     if (
@@ -105,19 +106,26 @@ app.get('/api/mood/recent/:userId', async (req, res, next) => {
       throw new ClientError(400, 'Invalid userId.');
     }
 
+    if (!date) {
+      throw new ClientError(400, 'Missing logDate');
+    }
+
     //  Get the users most recent log script
     const sqlRecentMood = `
       select
         "logDate", "moodId"
       from mood_logs
-      where "userId" = $1
+      where "userId" = $1 and "logDate" = $2
       order by "createdAt" desc
       limit 1;
     `;
 
-    const [recentMood] = (await db.query(sqlRecentMood, [userId])).rows;
+    const [recentMood] = (await db.query(sqlRecentMood, [userId, date])).rows;
     if (!recentMood) {
-      throw new ClientError(404, `User with Id ${userId} does not exist.`);
+      return res.status(200).json({
+        logDate: date,
+        emojiPath: null,
+      });
     }
 
     const sqlMood = `
@@ -135,17 +143,6 @@ app.get('/api/mood/recent/:userId', async (req, res, next) => {
       logDate: recentMood.logDate,
       emojiPath: moodPath.emojiPath,
     });
-
-    //  Todo:
-    //  Get the users most recent mood log of the day
-    //  Display it onto "Todays" category
-    //  Next day, it will be what was "Today" be the day it was created or something
-    //  Ex: If today was monday, and its a new day, then we will enqueue, and put it as "M" for monday
-    //  Then the new "today", will be marked
-    //  Keep this cycle going to a maximum of 7 days, that will also include "Today" being the 7th.
-    //  After we will dequeue if the list is maxed out.
-
-    // For this case: We just need to limit 1, which is the most recent mood logged for the day
   } catch (err) {
     next(err);
   }
