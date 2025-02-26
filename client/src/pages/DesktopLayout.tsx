@@ -106,7 +106,7 @@ export function DesktopLayout({
                 <span className="text-gray-600">Your mood was:</span>
               </div>
 
-              <div className="flex flex-col h-20 justify-center">
+              <div className="flex flex-col h-20 justify-center items-center">
                 {moodData?.emojiPath ? (
                   <img src={moodData.emojiPath} alt="Logged mood" />
                 ) : (

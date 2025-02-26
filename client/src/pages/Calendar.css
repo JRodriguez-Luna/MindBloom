@@ -23,6 +23,11 @@
   margin-top: 8px;
 }
 
+.react-calendar__month-view__days__day,
+.react-calendar__navigation__label {
+  cursor: pointer;
+}
+
 .react-calendar__navigation button:enabled:hover,
 .react-calendar__navigation button:enabled:focus {
   background-color: #1eb9a9;

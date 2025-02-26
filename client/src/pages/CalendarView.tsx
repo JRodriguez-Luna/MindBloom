@@ -17,15 +17,15 @@ export function CalendarView() {
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
 
   useEffect(() => {
-    function handleResize() {
+    function handleRedirect() {
       if (window.innerWidth >= 768) {
         navigate('/');
       }
     }
 
-    window.addEventListener('resize', handleResize);
+    window.addEventListener('resize', handleRedirect);
 
-    return () => window.removeEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleRedirect);
   }, [navigate]);
 
   const handleOnChange = (value: CalendarValue) => {

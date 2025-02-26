@@ -57,6 +57,11 @@ input[type='radio'] {
   border-radius: 100%;
 }
 
+.emoji:hover {
+  box-shadow: 0 5px 10px #3fc3b5;
+  transition: all 0.2s ease-out;
+}
+
 .selected {
   box-shadow: 0 5px 10px #3fc3b5;
 }
