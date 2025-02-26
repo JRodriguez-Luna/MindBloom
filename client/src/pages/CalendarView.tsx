@@ -1,7 +1,7 @@
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { TiChevronLeft } from 'react-icons/ti';
 import { Streaks } from './Streaks';
-import { MoodData, StreaksProps } from './Types';
+import { MoodData } from './Types';
 import { useState, useEffect } from 'react';
 import Calendar from 'react-calendar';
 import './Calendar.css';
@@ -9,11 +9,10 @@ import './Calendar.css';
 type ValuePiece = Date | null;
 type CalendarValue = ValuePiece | [ValuePiece, ValuePiece];
 
-export function CalendarView({
-  completedChallenges,
-  currentStreak,
-}: StreaksProps) {
+export function CalendarView() {
   const navigate = useNavigate();
+  const location = useLocation();
+  const { completedChallenges = 0, currentStreak = 0 } = location.state || {};
   const [moodData, setMoodData] = useState<MoodData | null>(null);
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
 
@@ -57,7 +56,7 @@ export function CalendarView({
 
   return (
     <>
-      <div className="challenge-container h-auto">
+      <div className="challenge-container h-auto" id="calender-view">
         <div className="dashboard-col gap-6">
           {/* Navigate back */}
           <button className="text-3xl" onClick={() => navigate('/')}>
@@ -77,12 +76,7 @@ export function CalendarView({
 
           {/* Calendar */}
           <div className="dashboard-row">
-            <Calendar
-              onChange={handleOnChange}
-              value={selectedDate}
-              calendarType="iso8601"
-              maxDetail="month"
-            />
+            <Calendar onChange={handleOnChange} value={selectedDate} />
           </div>
 
           {/* Mood Tracking */}

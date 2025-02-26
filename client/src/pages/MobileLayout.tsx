@@ -29,7 +29,14 @@ export function MobileLayout({
           {/* Stats */}
           <div className="dashboard-row space-between">
             <p>Your stats</p>
-            <Link to="/calendar">View All</Link>
+            <Link
+              to="/calendar"
+              state={{
+                completedChallenges: progress?.completedChallenges,
+                currentStreak: progress?.currentStreak,
+              }}>
+              View All
+            </Link>
           </div>
 
           {/* Challenges and Streaks */}
