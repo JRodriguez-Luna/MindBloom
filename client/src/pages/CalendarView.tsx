@@ -17,6 +17,18 @@ export function CalendarView({
   const [moodData, setMoodData] = useState<MoodData | null>(null);
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
 
+  useEffect(() => {
+    function handleResize() {
+      if (window.innerWidth >= 768) {
+        navigate('/');
+      }
+    }
+
+    window.addEventListener('resize', handleResize);
+
+    return () => window.removeEventListener('resize', handleResize);
+  }, [navigate]);
+
   const handleOnChange = (value: CalendarValue) => {
     if (!(value instanceof Date)) return;
     setSelectedDate(value);
