@@ -28,7 +28,7 @@ export function MobileLayout({
 
           {/* Stats */}
           <div className="dashboard-row space-between">
-            <p>Your stats</p>
+            <p className="text-xl">Your stats</p>
             <Link
               to="/calendar"
               state={{
