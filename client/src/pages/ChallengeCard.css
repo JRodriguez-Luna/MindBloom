@@ -29,6 +29,7 @@
   border-radius: 25px;
   padding: 10px;
   margin: 10px 0;
+  cursor: pointer;
 }
 
 /* Challenge */
@@ -42,6 +43,13 @@
   border: solid #333d3c;
   border-radius: 25px;
   margin: 10px 0;
+  cursor: pointer;
+}
+
+.challenge:hover {
+  border: solid #3fc3b5;
+  background-color: rgb(63, 195, 181, 20%);
+  transition: all 0.2s ease-out;
 }
 
 .challenge-detail {

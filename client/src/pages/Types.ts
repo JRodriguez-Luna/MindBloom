@@ -3,10 +3,20 @@ export type Mood = {
   emojiPath: string;
 };
 
+export type StreaksProps = {
+  completedChallenges?: number;
+  currentStreak?: number;
+};
+
+export type MoodData = {
+  logDate: string;
+  emojiPath: string | null;
+};
+
 export type Progress = {
-  totalPoints: number;
-  level: number;
-  progress: number;
+  totalPoints?: number;
+  level?: number;
+  progress?: number;
   currentStreak: number;
   completedChallenges: number;
 };
