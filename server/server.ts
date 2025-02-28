@@ -93,6 +93,61 @@ app.get('/api/moods', async (req, res, next) => {
   }
 });
 
+app.get('/api/mood-tracking/:userId', async (req, res, next) => {
+  try {
+    const { date } = req.query;
+    const userId = req.params.userId;
+
+    if (
+      Number.isNaN(userId) ||
+      !Number.isInteger(+userId) ||
+      Number(userId) < 1
+    ) {
+      throw new ClientError(400, 'Invalid userId.');
+    }
+
+    if (!date) {
+      throw new ClientError(400, 'Missing logDate');
+    }
+
+    //  Get the users most recent log script
+    const sqlRecentMood = `
+      select
+        "logDate", "moodId"
+      from mood_logs
+      where "userId" = $1 and "logDate" = $2
+      order by "createdAt" desc
+      limit 1;
+    `;
+
+    const [recentMood] = (await db.query(sqlRecentMood, [userId, date])).rows;
+    if (!recentMood) {
+      return res.status(200).json({
+        logDate: date,
+        emojiPath: null,
+      });
+    }
+
+    const sqlMood = `
+      select "emojiPath"
+      from mood
+      where "id" = $1;
+    `;
+
+    const [moodPath] = (await db.query(sqlMood, [recentMood.moodId])).rows;
+    if (!moodPath) {
+      throw new ClientError(404, `Id ${recentMood.moodId} does not exist.`);
+    }
+
+    res.status(200).json({
+      logDate: recentMood.logDate,
+      emojiPath: moodPath.emojiPath,
+    });
+  } catch (err) {
+    next(err);
+  }
+});
+
 app.post('/api/mood-logs/:userId', async (req, res, next) => {
   try {
     const { mood, detail } = req.body;

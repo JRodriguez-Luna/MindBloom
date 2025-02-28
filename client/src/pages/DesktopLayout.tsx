@@ -1,6 +1,16 @@
 import plantIcon from '/images/icons/plant.svg';
 import './DesktopLayout.css';
 import { LayoutProps } from './Types';
+import Calendar from 'react-calendar';
+import './Calendar.css';
+import { useEffect, useState } from 'react';
+
+type ValuePiece = Date | null;
+type CalendarValue = ValuePiece | [ValuePiece, ValuePiece];
+type MoodData = {
+  logDate: string;
+  emojiPath: string | null;
+};
 
 export function DesktopLayout({
   moods,
@@ -11,6 +21,35 @@ export function DesktopLayout({
   handleCharacterCount,
   handleSubmit,
 }: LayoutProps) {
+  const [moodData, setMoodData] = useState<MoodData | null>(null);
+  const [selectedDate, setSelectedDate] = useState<Date>(new Date());
+
+  const handleOnChange = (value: CalendarValue) => {
+    if (!(value instanceof Date)) return;
+    setSelectedDate(value);
+  };
+
+  useEffect(() => {
+    async function getMoodData() {
+      try {
+        const formattedDate = `${selectedDate.getFullYear()}-${
+          selectedDate.getMonth() + 1
+        }-${selectedDate.getDate()}`;
+
+        const res = await fetch(`/api/mood-tracking/1?date=${formattedDate}`);
+        if (!res.ok) throw new Error('Failed to fetch mood data');
+
+        const data = await res.json();
+        setMoodData(data);
+      } catch (err) {
+        console.error('Error fetching mood data:', err);
+        setMoodData(null);
+      }
+    }
+
+    getMoodData();
+  }, [selectedDate]);
+
   return (
     <>
       <div className="desktop-container">
@@ -49,6 +88,31 @@ export function DesktopLayout({
 
             <div className="desktop-col justify-start items-end">
               <p>Circle Here</p>
+            </div>
+          </div>
+
+          <div className="desktop-row">
+            <Calendar
+              onChange={handleOnChange}
+              value={selectedDate}
+              selectRange={false}
+            />
+          </div>
+
+          <div className="desktop-row justify-between">
+            <div className="desktop-row bg-black w-full h-30 rounded-2xl padding items-center">
+              <div className="flex flex-col h-full justify-center items-center text-2xl">
+                <span>Mood Tracking</span>
+                <span className="text-gray-600">Your mood was:</span>
+              </div>
+
+              <div className="flex flex-col h-20 justify-center items-center">
+                {moodData?.emojiPath ? (
+                  <img src={moodData.emojiPath} alt="Logged mood" />
+                ) : (
+                  <span className="text-gray-500">No mood logged</span>
+                )}
+              </div>
             </div>
           </div>
         </div>

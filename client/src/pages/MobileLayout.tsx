@@ -1,7 +1,9 @@
 import plantIcon from '/images/icons/plant.svg';
 import { Modal } from './Modal';
 import './MobileLayout.css';
+import { Link } from 'react-router-dom';
 import { LayoutProps } from './Types';
+import { Streaks } from './Streaks';
 
 export function MobileLayout({
   isOpen,
@@ -26,19 +28,22 @@ export function MobileLayout({
 
           {/* Stats */}
           <div className="dashboard-row space-between">
-            <p>Your stats</p>
-            <p>View all</p>
+            <p className="text-xl">Your stats</p>
+            <Link
+              to="/calendar"
+              state={{
+                completedChallenges: progress?.completedChallenges,
+                currentStreak: progress?.currentStreak,
+              }}>
+              View All
+            </Link>
           </div>
 
           {/* Challenges and Streaks */}
-          <div className="dashboard-row space-between">
-            <div className="box dashboard-col center">
-              <span>💫 {progress?.completedChallenges} Challenges</span>
-            </div>
-            <div className="box dashboard-col center">
-              <span>🔥 {progress?.currentStreak} Streaks</span>
-            </div>
-          </div>
+          <Streaks
+            completedChallenges={progress?.completedChallenges}
+            currentStreak={progress?.currentStreak}
+          />
 
           {/* 7 Day Tracker */}
           <div className="dashboard-row space-between padding-top">
