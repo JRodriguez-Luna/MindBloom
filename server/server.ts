@@ -3,6 +3,7 @@ import 'dotenv/config';
 import express from 'express';
 import pg, { Client } from 'pg';
 import { ClientError, errorMiddleware } from './lib/index.js';
+import argon2 from 'argon2';
 
 const db = new pg.Pool({
   connectionString: process.env.DATABASE_URL,
@@ -33,6 +34,30 @@ app.use(express.static(reactStaticDir));
 // Static directory for file uploads server/public/
 app.use(express.static(uploadsStaticDir));
 app.use(express.json());
+
+// Auth
+app.post('/api/auth/sign-up', async (req, res, next) => {
+  try {
+    const { firstName, lastName, email, password } = req.body;
+    if (!firstName || !lastName || !email || !password) {
+      throw new ClientError(400, 'Missing required fields.');
+    }
+
+    const hashPassword = await argon2.hash(password);
+    const sql = `
+      insert into "users" ("firstName", "lastName", "email", "password")
+      values($1, $2, $3, $4)
+      returning *;
+    `;
+
+    const param = [firstName, lastName, email, hashPassword];
+    const [user] = (await db.query(sql, param)).rows;
+
+    res.status(201).json(user);
+  } catch (err) {
+    next(err);
+  }
+});
 
 app.get('/api/progress/:userId', async (req, res, next) => {
   try {
