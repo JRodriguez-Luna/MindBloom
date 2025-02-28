@@ -4,6 +4,10 @@ import express from 'express';
 import pg, { Client } from 'pg';
 import { ClientError, errorMiddleware } from './lib/index.js';
 import argon2 from 'argon2';
+import jwt from 'jsonwebtoken';
+
+const hashKey = process.env.TOKEN_SECRET;
+if (!hashKey) throw new Error('TOKEN_SECRET not found in .env');
 
 const db = new pg.Pool({
   connectionString: process.env.DATABASE_URL,
@@ -59,6 +63,45 @@ app.post('/api/auth/sign-up', async (req, res, next) => {
   }
 });
 
+app.post('/api/auth/sign-in', async (req, res, next) => {
+  try {
+    const { email, password } = req.body;
+    if (!email || !password) {
+      throw new ClientError(400, 'Invalid login');
+    }
+
+    const sql = `
+      select "id", "email", "password"
+      from "users"
+      where "email" = $1;
+    `;
+
+    const [user] = (await db.query(sql, [email])).rows;
+    if (!user) {
+      throw new ClientError(401, 'Invalid email or password');
+    }
+
+    const validPassword = await argon2.verify(user.password, password);
+    if (!validPassword) {
+      throw new ClientError(401, 'Invalid email or password');
+    }
+
+    const payload = {
+      userId: user.userId,
+      email: user.email,
+    };
+
+    const token = jwt.sign(payload, hashKey);
+
+    res.status(200).json({
+      user: payload,
+      token,
+    });
+  } catch (err) {
+    next(err);
+  }
+});
+
 app.get('/api/progress/:userId', async (req, res, next) => {
   try {
     const userId = req.params.userId;
@@ -96,7 +139,7 @@ app.get('/api/progress/:userId', async (req, res, next) => {
 
     res.status(200).json({ ...userProgress, progress });
   } catch (err) {
-    next(err); // Pass errors to the error-handling middleware
+    next(err);
   }
 });
 
