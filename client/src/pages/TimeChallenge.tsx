@@ -85,7 +85,7 @@ export function TimeChallenge() {
       });
 
       if (!res.ok) throw new Error('Submission failed');
-      navigate('/challenges');
+      navigate('/app/challenges');
     } catch (err) {
       console.error('Error:', err);
     }
@@ -95,7 +95,9 @@ export function TimeChallenge() {
     <div className="time-container">
       <div className="time-col">
         <div className="time-row">
-          <button className="text-3xl" onClick={() => navigate('/challenges')}>
+          <button
+            className="text-3xl"
+            onClick={() => navigate('/app/challenges')}>
             <TiChevronLeft />
           </button>
         </div>

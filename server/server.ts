@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-unused-vars -- Remove when used */
 import 'dotenv/config';
 import express from 'express';
-import pg, { Client } from 'pg';
+import pg from 'pg';
 import { ClientError, errorMiddleware } from './lib/index.js';
 import argon2 from 'argon2';
 import jwt from 'jsonwebtoken';
@@ -87,7 +87,7 @@ app.post('/api/auth/sign-in', async (req, res, next) => {
     }
 
     const payload = {
-      userId: user.userId,
+      id: user.id,
       email: user.email,
     };
 

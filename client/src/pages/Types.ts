@@ -3,6 +3,12 @@ export type Mood = {
   emojiPath: string;
 };
 
+export type User = {
+  id: number;
+  email: string;
+  password: string;
+};
+
 export type StreaksProps = {
   completedChallenges?: number;
   currentStreak?: number;

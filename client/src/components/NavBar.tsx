@@ -12,17 +12,17 @@ export function NavBar() {
 
   const navItem = [
     {
-      path: '/',
+      path: '/app',
       src: '/images/icons/dashboard.svg',
       alt: 'dashboard',
     },
     {
-      path: '/challenges',
+      path: '/app/challenges',
       src: '/images/icons/challenges.svg',
       alt: 'challenges',
     },
     {
-      path: '/profile',
+      path: '/app/profile',
       src: '/images/icons/profile.svg',
       alt: 'profile',
     },

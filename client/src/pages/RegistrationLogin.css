@@ -1,0 +1,66 @@
+.reg-container {
+  width: 100%;
+  height: 100vh;
+  padding: 20px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+}
+
+.reg-col {
+  display: flex;
+  flex-direction: column;
+  gap: 30px;
+}
+
+.reg-row {
+  display: flex;
+}
+
+img.logo {
+  width: 60px;
+  height: 60px;
+}
+
+.input-group {
+  width: 354px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.input-group label {
+  font-size: 14px;
+  color: white;
+}
+
+input {
+  width: 100%;
+  height: 48px;
+  background-color: white;
+  border-radius: 6px;
+  padding: 8px 16px;
+  outline: none;
+}
+
+.sign-in-button {
+  width: 354px;
+  height: 48px;
+  background-color: #1cbbab;
+  border-radius: 6px;
+  padding: 10px 25px;
+  cursor: pointer;
+}
+
+.sign-in-button:hover {
+  background-color: #11766c;
+}
+
+.padding-bottom {
+  padding-bottom: 20px;
+}
+
+#sign-up {
+  background-color: #0a3d3f;
+}
