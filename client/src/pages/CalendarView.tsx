@@ -65,7 +65,7 @@ export function CalendarView({ user }: CalendarViewProps) {
     <>
       <div className="challenge-container h-auto" id="calender-view">
         <div className="dashboard-col gap-6">
-          <button className="text-3xl" onClick={() => navigate('/')}>
+          <button className="text-3xl" onClick={() => navigate('/app')}>
             <TiChevronLeft />
           </button>
 

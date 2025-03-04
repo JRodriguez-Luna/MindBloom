@@ -144,7 +144,7 @@ export function SignUp() {
             {error && <div className="text-red-500 text-sm">{error}</div>}
             {success && <div className="text-green-500 text-sm">{success}</div>}
 
-            {/* Submit Button - MOVED INSIDE FORM */}
+            {/* Submit Button */}
             <div className="reg-row justify-center items-center mt-4">
               <button className="sign-in-button" type="submit">
                 Sign up
@@ -158,7 +158,7 @@ export function SignUp() {
           <p>
             Already have an account?{' '}
             <Link
-              to="/sign-in"
+              to="/"
               className="cursor-pointer text-teal-600 hover:text-teal-500">
               Sign in
             </Link>
