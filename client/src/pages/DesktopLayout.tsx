@@ -20,6 +20,7 @@ export function DesktopLayout({
   handleSelectedEmoji,
   handleCharacterCount,
   handleSubmit,
+  user,
 }: LayoutProps) {
   const [moodData, setMoodData] = useState<MoodData | null>(null);
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
@@ -32,55 +33,59 @@ export function DesktopLayout({
   useEffect(() => {
     async function getMoodData() {
       try {
+        if (!user || !user.id) {
+          return;
+        }
+
         const formattedDate = `${selectedDate.getFullYear()}-${
           selectedDate.getMonth() + 1
         }-${selectedDate.getDate()}`;
 
-        const res = await fetch(`/api/mood-tracking/1?date=${formattedDate}`);
-        if (!res.ok) throw new Error('Failed to fetch mood data');
+        const res = await fetch(
+          `/api/mood-tracking/${user.id}?date=${formattedDate}`
+        );
+        if (!res.ok) {
+          throw new Error('Failed to fetch mood data');
+        }
 
         const data = await res.json();
         setMoodData(data);
       } catch (err) {
-        console.error('Error fetching mood data:', err);
         setMoodData(null);
       }
     }
 
     getMoodData();
-  }, [selectedDate]);
+  }, [selectedDate, user]);
 
   return (
     <>
       <div className="desktop-container">
         <div className="desktop-col-half left-content gap-4">
-          {/* User's name */}
           <div className="desktop-row">
-            <h1 className="text-3xl">Hi, Jesus</h1>
+            <h1 className="text-3xl">
+              Hi, {user?.firstName ? user.firstName : 'Friend'}
+            </h1>
           </div>
 
-          {/* Stats Title */}
           <div className="desktop-row">
             <p className="text-2xl">Stats</p>
           </div>
 
-          {/* Streaks */}
           <div className="desktop-row justify-between">
             <div className="bg-black w-full h-20 rounded-2xl padding">
               <div className="flex h-full justify-center items-center">
-                <span>💫 {progress?.completedChallenges} Challenges</span>
+                <span>💫 {progress?.completedChallenges ?? 0} Challenges</span>
               </div>
             </div>
 
             <div className="bg-black w-full h-20 rounded-2xl padding">
               <div className="flex h-full justify-center items-center">
-                <span>🔥 {progress?.currentStreak} Streaks</span>
+                <span>🔥 {progress?.currentStreak ?? 0} Streaks</span>
               </div>
             </div>
           </div>
 
-          {/* 7 Day Tracker */}
-          {/* Future Feature: Will be replaced when first mood is logged. */}
           <div className="desktop-row space-between day-tracker">
             <div className="desktop-col justify-start items-start">
               <p>Once you start logging, we will track your progress here.</p>
@@ -117,13 +122,11 @@ export function DesktopLayout({
           </div>
         </div>
 
-        {/* Title */}
         <div className="desktop-col-half right-content gap-5">
           <div className="desktop-row">
             <h1 className="text-xl">Log Mood</h1>
           </div>
 
-          {/* Log Mood */}
           <div className="desktop-row justify-center">
             <div className="journal-card">
               <form
@@ -172,19 +175,16 @@ export function DesktopLayout({
             </div>
           </div>
 
-          {/* Line */}
           <div className="line"></div>
 
-          {/* Plant Title */}
           <div className="desktop-row">
             <h1 className="text-xl">Plant Progress</h1>
           </div>
 
-          {/* Plant Visual */}
           <div className="desktop-row justify-center">
             <div className="desktop-col justify-center items-center progress">
               <img className="plant" src={plantIcon} alt="plant" />
-              <p>Your plant is level: {progress?.level}</p>
+              <p>Your plant is level: {progress?.level ?? 1}</p>
               <div className="h-4 w-2xs relative bg-white rounded-2xl">
                 <div
                   className="bg-fill-bar h-4 w-2xs absolute rounded-2xl"

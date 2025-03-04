@@ -4,8 +4,11 @@ import './RegistrationLogin.css';
 import { FormEvent, useState } from 'react';
 import { User } from './Types.ts';
 
-export function SignIn() {
-  const [user, setUser] = useState<User | null>(null);
+type SignInProps = {
+  setUser: (user: User | null) => void;
+};
+
+export function SignIn({ setUser }: SignInProps) {
   const [error, setError] = useState<string>('');
   const navigate = useNavigate();
 
@@ -35,9 +38,15 @@ export function SignIn() {
       }
 
       const data = await res.json();
-      console.log('user data:', data);
-      console.log('userId', user?.id);
-      setUser(data);
+      console.log('Server response:', data);
+
+      // Make sure we have a user with an id before setting the user
+      if (!data.user || !data.user.id) {
+        throw new Error('Invalid user data received from server');
+      }
+
+      // Set the user state with the response data
+      setUser(data.user);
       navigate('/app');
     } catch (err) {
       console.error('SignIn Error:', err);

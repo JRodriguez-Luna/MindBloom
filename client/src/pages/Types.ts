@@ -4,9 +4,10 @@ export type Mood = {
 };
 
 export type User = {
-  id: number;
+  id: string | number;
   email: string;
-  password: string;
+  firstName?: string;
+  lastName?: string;
 };
 
 export type StreaksProps = {
@@ -20,9 +21,9 @@ export type MoodData = {
 };
 
 export type Progress = {
-  totalPoints?: number;
-  level?: number;
-  progress?: number;
+  totalPoints: number;
+  level: number;
+  progress: number;
   currentStreak: number;
   completedChallenges: number;
 };
@@ -38,4 +39,5 @@ export type LayoutProps = {
   handleSubmit: (event: React.FormEvent<HTMLFormElement>) => void;
   openModal?: () => void;
   closeModal?: () => void;
+  user: User | null;
 };

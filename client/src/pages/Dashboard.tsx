@@ -1,9 +1,13 @@
 import { ChangeEvent, FormEvent, useEffect, useState } from 'react';
 import { MobileLayout } from './MobileLayout';
 import { DesktopLayout } from './DesktopLayout';
-import { Mood, Progress } from './Types';
+import { Mood, Progress, User } from './Types';
 
-export function Dashboard() {
+type DashboardProps = {
+  user: User | null;
+};
+
+export function Dashboard({ user }: DashboardProps) {
   const [isDesktop, setIsDesktop] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
   const [moods, setMoods] = useState<Mood[]>([]);
@@ -18,16 +22,28 @@ export function Dashboard() {
 
   async function getProgress() {
     try {
-      const progressReq = await fetch('/api/progress/1');
+      if (!user || !user.id) {
+        setIsLoading(false);
+        return;
+      }
+
+      const progressReq = await fetch(`/api/progress/${user.id}`);
+
+      if (progressReq.status === 404) {
+        await fetch(`/api/progress/${user.id}`, { method: 'POST' });
+        return getProgress();
+      }
+
       if (!progressReq.ok) {
         throw new Error(`Failed to fetch progress. (${progressReq.status})`);
       }
 
       const data = await progressReq.json();
-      setIsLoading(false);
       setProgress(data);
     } catch (err) {
       setError(err);
+    } finally {
+      setIsLoading(false);
     }
   }
 
@@ -40,7 +56,6 @@ export function Dashboard() {
         }
 
         const data = await moodReq.json();
-        setIsLoading(false);
         setMoods(data);
       } catch (err) {
         setError(err);
@@ -48,8 +63,13 @@ export function Dashboard() {
     }
 
     getMoods();
-    getProgress();
-  }, []);
+
+    if (user && user.id) {
+      getProgress();
+    } else {
+      setIsLoading(false);
+    }
+  }, [user]);
 
   const handleSelectedEmoji = (index: number) => {
     setSelectedEmoji(index);
@@ -63,15 +83,19 @@ export function Dashboard() {
     try {
       event.preventDefault();
 
-      if (selectEmoji === null) {
+      if (selectEmoji === undefined) {
         throw new Error('Please select a mood.');
+      }
+
+      if (!user || !user.id) {
+        throw new Error('You must be signed in to log moods');
       }
 
       const formData = new FormData(event.currentTarget);
       const mood = formData.get('mood');
       const detail = formData.get('detail');
 
-      const newMoodReq = await fetch('/api/mood-logs/1', {
+      const newMoodReq = await fetch(`/api/mood-logs/${user.id}`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -83,11 +107,9 @@ export function Dashboard() {
         throw new Error('Failed to add new mood.');
       }
 
-      // Clear inputs
       setCounter('');
       setSelectedEmoji(undefined);
 
-      // Check to see if currentTarget is not null, else it will Error.
       if (event.currentTarget) {
         event.currentTarget.reset();
       }
@@ -105,9 +127,7 @@ export function Dashboard() {
     }
 
     handleResize();
-
     window.addEventListener('resize', handleResize);
-
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
@@ -116,7 +136,6 @@ export function Dashboard() {
   }
 
   if (error) {
-    console.error('fetch error:', error);
     return (
       <div>
         Error! {error instanceof Error ? error.message : 'Unknown error'}
@@ -133,6 +152,7 @@ export function Dashboard() {
       handleSelectedEmoji={handleSelectedEmoji}
       handleCharacterCount={handleCharacterCount}
       handleSubmit={handleSubmit}
+      user={user}
     />
   ) : (
     <MobileLayout
@@ -146,6 +166,7 @@ export function Dashboard() {
       handleSubmit={handleSubmit}
       openModal={openModal}
       closeModal={closeModal}
+      user={user}
     />
   );
 }

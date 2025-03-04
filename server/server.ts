@@ -21,13 +21,6 @@ type Mood = {
   emojiPath: string;
 };
 
-type ChallengeCompletion = {
-  userId: number;
-  challengeId: number;
-  isCompleted: boolean;
-  completionDate: Date | null;
-};
-
 const app = express();
 
 // Create paths for static directories
@@ -56,6 +49,15 @@ app.post('/api/auth/sign-up', async (req, res, next) => {
 
     const param = [firstName, lastName, email, hashPassword];
     const [user] = (await db.query(sql, param)).rows;
+
+    const newUserProgressSQL = `
+      insert into progress ("userId", "totalPoints", "level", "currentStreak")
+      values ($1, 0, 1, 0);
+      `;
+
+    const newUserData = await db.query(newUserProgressSQL, [user.id]);
+    if (!newUserData)
+      throw new ClientError(400, 'Failed to insert new user progress data.');
 
     res.status(201).json(user);
   } catch (err) {
@@ -115,7 +117,7 @@ app.get('/api/progress/:userId', async (req, res, next) => {
         "p"."totalPoints", "p"."level", "p"."currentStreak",
         COUNT(*) FILTER (where "uc"."isCompleted" = true)::int as "completedChallenges"
       from progress as "p"
-      join
+      left join
         "user_challenges" as "uc" using("userId")
       where
         "userId" = $1
@@ -230,7 +232,6 @@ app.post('/api/mood-logs/:userId', async (req, res, next) => {
       throw new ClientError(400, 'Invalid userId.');
     }
 
-    // get the moodId from mood where mood = the selected mood from user
     const sqlMoodId = `
       select id
       from mood
@@ -242,7 +243,6 @@ app.post('/api/mood-logs/:userId', async (req, res, next) => {
       throw new ClientError(400, 'Mood selected does not exists.');
     }
 
-    // add the newLog with the appropriate id
     const sqlNewLog = `
       insert into mood_logs ("userId", "moodId", "detail", "logDate")
       values ($1, $2, $3, CURRENT_DATE)
@@ -374,6 +374,7 @@ app.post('/api/user-challenges/completion/:userId', async (req, res, next) => {
     const { challengeId, isComplete, points } = req.body;
     const userId = req.params.userId;
 
+    // Input validation
     if (typeof isComplete !== 'boolean') {
       throw new ClientError(400, `Invalid. 'isComplete' must be a boolean.`);
     }
@@ -402,24 +403,81 @@ app.post('/api/user-challenges/completion/:userId', async (req, res, next) => {
       throw new ClientError(400, 'Invalid points.');
     }
 
-    const sql = `
-      update user_challenges
-      set
-        "isCompleted" = $1,
-        "completionDate" = CURRENT_DATE
-      where
-        "userId" = $2 and "challengeId" = $3
-      returning *;
+    const userCheckSql = `
+      select id from users where id = $1;
     `;
-
-    const [challengeCompleted]: ChallengeCompletion[] = (
-      await db.query(sql, [isComplete, userId, challengeId])
-    ).rows;
-    if (!challengeCompleted) {
-      throw new ClientError(404, `User with ID ${userId} does not exists.`);
+    const userCheckResult = await db.query(userCheckSql, [userId]);
+    if (userCheckResult.rows.length === 0) {
+      throw new ClientError(404, `User with ID ${userId} does not exist.`);
     }
 
-    // update users total points.
+    const challengeCheckSql = `
+      select id from challenges where id = $1;
+    `;
+    const challengeCheckResult = await db.query(challengeCheckSql, [
+      challengeId,
+    ]);
+    if (challengeCheckResult.rows.length === 0) {
+      throw new ClientError(
+        404,
+        `Challenge with ID ${challengeId} does not exist.`
+      );
+    }
+
+    const checkUserChallengeSql = `
+      select * from user_challenges
+      where "userId" = $1 and "challengeId" = $2;
+    `;
+    const userChallengeResult = await db.query(checkUserChallengeSql, [
+      userId,
+      challengeId,
+    ]);
+
+    let challengeCompleted;
+
+    if (userChallengeResult.rows.length === 0) {
+      // If record doesn't exist, insert a new one
+      const insertSql = `
+        insert into user_challenges ("userId", "challengeId", "isCompleted", "completionDate")
+        values ($1, $2, $3, CURRENT_DATE)
+        returning *;
+      `;
+      const insertResult = await db.query(insertSql, [
+        userId,
+        challengeId,
+        isComplete,
+      ]);
+      challengeCompleted = insertResult.rows[0];
+
+      console.log(
+        `Created new user_challenge record for user ${userId}, challenge ${challengeId}`
+      );
+    } else {
+      const updateSql = `
+        update user_challenges
+        set
+          "isCompleted" = $1,
+          "completionDate" = CURRENT_DATE
+        where
+          "userId" = $2 and "challengeId" = $3
+        returning *;
+      `;
+      const updateResult = await db.query(updateSql, [
+        isComplete,
+        userId,
+        challengeId,
+      ]);
+      challengeCompleted = updateResult.rows[0];
+
+      console.log(
+        `Updated existing user_challenge record for user ${userId}, challenge ${challengeId}`
+      );
+    }
+
+    if (!challengeCompleted) {
+      throw new ClientError(500, `Failed to record challenge completion.`);
+    }
+
     const sqlUpdateTotalPoints = `
       update progress
       set "totalPoints" = "totalPoints" + $1
