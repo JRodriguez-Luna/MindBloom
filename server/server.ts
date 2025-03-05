@@ -73,7 +73,7 @@ app.post('/api/auth/sign-in', async (req, res, next) => {
     }
 
     const sql = `
-      select "id", "email", "password"
+      select "id", "email", "password", "firstName", "lastName"
       from "users"
       where "email" = $1;
     `;
@@ -91,6 +91,8 @@ app.post('/api/auth/sign-in', async (req, res, next) => {
     const payload = {
       id: user.id,
       email: user.email,
+      firstName: user.firstName,
+      lastName: user.lastName,
     };
 
     const token = jwt.sign(payload, hashKey);

@@ -1,7 +1,18 @@
 import './Profile.css';
 import { MdLogout } from 'react-icons/md';
+import { User } from './Types';
 
-export function Profile() {
+type ProfileProps = {
+  user: User | null;
+};
+
+export function Profile({ user }: ProfileProps) {
+  if (!user?.firstName || !user?.lastName || !user.email) {
+    console.error('Failed to get profile details');
+    return;
+  }
+  const userName = user.firstName + user.lastName;
+
   return (
     <div className="profile-container">
       <div className="profile-col gap-4">
@@ -14,8 +25,8 @@ export function Profile() {
         </div>
 
         <div className="profile-col justify-center items-center">
-          <p>Friend Name</p>
-          <p>FriendName@gmail.com</p>
+          <p>{userName}</p>
+          <p>{user.email}</p>
         </div>
 
         <div className="profile-row justify-center items-center">
