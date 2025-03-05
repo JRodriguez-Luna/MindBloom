@@ -1,12 +1,17 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { TiChevronLeft } from 'react-icons/ti';
 import { FaPauseCircle, FaPlay } from 'react-icons/fa';
 import { ContinueButton } from '../components/ContinueButton';
 import logo from '/images/icons/logo.svg';
 import './TimeChallenge.css';
+import { User } from './Types';
 
-export function TimeChallenge() {
+type TimeChallengeProps = {
+  user: User | null;
+};
+
+export function TimeChallenge({ user }: TimeChallengeProps) {
   const navigate = useNavigate();
   const location = useLocation();
   const { selectedChallenge, points } = location.state || {
@@ -14,6 +19,7 @@ export function TimeChallenge() {
     points: null,
   };
 
+  const [submitError, setSubmitError] = useState<string | null>(null);
   const instructions: string[] = ['Inhale', 'Hold', 'Exhale'];
   const totalSets: number = 3;
   const initialTimer: number = 4;
@@ -24,6 +30,14 @@ export function TimeChallenge() {
   const [completed, setCompleted] = useState<boolean>(false);
 
   const timeoutIds = useRef<Array<NodeJS.Timeout>>([]);
+
+  useEffect(() => {
+    if (!user) {
+      setSubmitError('Please sign in to complete challenges');
+    } else {
+      setSubmitError(null);
+    }
+  }, [user]);
 
   function clearAllTimeouts(): void {
     timeoutIds.current.forEach((id) => clearTimeout(id));
@@ -64,6 +78,13 @@ export function TimeChallenge() {
 
   const handleSubmit = async () => {
     try {
+      setSubmitError(null);
+
+      if (!user || !user.id) {
+        setSubmitError('Please sign in to complete challenges');
+        return;
+      }
+
       const challengesResponse = await fetch('/api/challenges');
       if (!challengesResponse.ok) throw new Error('Failed to fetch challenges');
       const challenges = await challengesResponse.json();
@@ -73,21 +94,26 @@ export function TimeChallenge() {
         selectedChallenge === undefined ||
         !challenges[selectedChallenge]
       ) {
-        console.error('Invalid selectedChallenge index:', selectedChallenge);
+        setSubmitError('Challenge not found');
         return;
       }
 
       const challengeId = challenges[selectedChallenge].id;
-      const res = await fetch('/api/user-challenges/completion/1', {
+
+      const res = await fetch(`/api/user-challenges/completion/${user.id}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ challengeId, isComplete: true, points }),
       });
 
-      if (!res.ok) throw new Error('Submission failed');
-      navigate('/challenges');
+      if (!res.ok) {
+        const errorData = await res.json().catch(() => null);
+        throw new Error(errorData?.message || 'Submission failed');
+      }
+
+      navigate('/app/challenges');
     } catch (err) {
-      console.error('Error:', err);
+      setSubmitError(err instanceof Error ? err.message : 'An error occurred');
     }
   };
 
@@ -95,7 +121,9 @@ export function TimeChallenge() {
     <div className="time-container">
       <div className="time-col">
         <div className="time-row">
-          <button className="text-3xl" onClick={() => navigate('/challenges')}>
+          <button
+            className="text-3xl"
+            onClick={() => navigate('/app/challenges')}>
             <TiChevronLeft />
           </button>
         </div>
@@ -108,7 +136,12 @@ export function TimeChallenge() {
             <p className="text-base italic">{instructions[instructionIndex]}</p>
             <div className="pause-play-buttons">
               {completed ? (
-                <ContinueButton active onClick={handleSubmit} />
+                <>
+                  {submitError && (
+                    <p className="text-red-500 mb-2">{submitError}</p>
+                  )}
+                  <ContinueButton active onClick={handleSubmit} />
+                </>
               ) : running ? (
                 <FaPauseCircle className="text-5xl" onClick={stopTimer} />
               ) : (

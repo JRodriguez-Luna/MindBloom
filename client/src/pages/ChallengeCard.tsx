@@ -7,6 +7,7 @@ import { RenderChallenge } from '../components/RenderChallenge';
 import { UserChallenge, Challenge } from './Challenges';
 import './ChallengeCard.css';
 import { useState } from 'react';
+import { User } from './Types';
 
 type ChallengeCardProps = {
   challenges: Challenge[];
@@ -18,6 +19,7 @@ type ChallengeCardProps = {
   selectedChallenge: number | null;
   points: number | null;
   refreshUserChallenges: () => Promise<void>;
+  user: User | null;
 };
 
 export function ChallengeCard({
@@ -30,6 +32,7 @@ export function ChallengeCard({
   selectedChallenge,
   points,
   refreshUserChallenges,
+  user,
 }: ChallengeCardProps) {
   const challengeCategories = [
     {
@@ -142,6 +145,7 @@ export function ChallengeCard({
         setIsOpen={setIsOpen}
         points={points}
         refreshUserChallenges={refreshUserChallenges}
+        user={user}
       />
     </>
   );

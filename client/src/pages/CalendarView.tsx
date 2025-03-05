@@ -5,11 +5,16 @@ import { MoodData } from './Types';
 import { useState, useEffect } from 'react';
 import Calendar from 'react-calendar';
 import './Calendar.css';
+import { User } from './Types';
+
+type CalendarViewProps = {
+  user: User | null;
+};
 
 type ValuePiece = Date | null;
 type CalendarValue = ValuePiece | [ValuePiece, ValuePiece];
 
-export function CalendarView() {
+export function CalendarView({ user }: CalendarViewProps) {
   const navigate = useNavigate();
   const location = useLocation();
   const { completedChallenges = 0, currentStreak = 0 } = location.state || {};
@@ -40,46 +45,43 @@ export function CalendarView() {
           selectedDate.getMonth() + 1
         }-${selectedDate.getDate()}`;
 
-        const res = await fetch(`/api/mood-tracking/1?date=${formattedDate}`);
+        if (!user?.id) return;
+        const res = await fetch(
+          `/api/mood-tracking/${user.id}?date=${formattedDate}`
+        );
         if (!res.ok) throw new Error('Failed to fetch mood data');
 
         const data = await res.json();
         setMoodData(data);
       } catch (err) {
-        console.error('Error fetching mood data:', err);
         setMoodData(null);
       }
     }
 
     getMoodData();
-  }, [selectedDate]);
+  }, [selectedDate, user?.id]);
 
   return (
     <>
       <div className="challenge-container h-auto" id="calender-view">
         <div className="dashboard-col gap-6">
-          {/* Navigate back */}
-          <button className="text-3xl" onClick={() => navigate('/')}>
+          <button className="text-3xl" onClick={() => navigate('/app')}>
             <TiChevronLeft />
           </button>
 
-          {/* Title */}
           <div className="dashboard-row">
             <h1 className="text-3xl">Your Stats</h1>
           </div>
 
-          {/* Challenges and Streaks */}
           <Streaks
             completedChallenges={completedChallenges}
             currentStreak={currentStreak}
           />
 
-          {/* Calendar */}
           <div className="dashboard-row">
             <Calendar onChange={handleOnChange} value={selectedDate} />
           </div>
 
-          {/* Mood Tracking */}
           <div className="dashboard-row justify-between">
             <div className="dashboard-row bg-black w-full h-30 rounded-2xl padding items-center">
               <div className="flex flex-col h-full justify-center items-center text-base">

@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { ChallengeCard } from './ChallengeCard';
+import { User } from './Types';
 
 export type Challenge = {
   id: number;
@@ -15,7 +16,11 @@ export type UserChallenge = {
   completionDate: Date | null;
 };
 
-export function Challenges() {
+type ChallengesProps = {
+  user: User | null;
+};
+
+export function Challenges({ user }: ChallengesProps) {
   const [challenge, setChallenge] = useState<Challenge[]>([]);
   const [selectedCategory, setSelectedCategory] = useState<string>('');
   const [selectedChallenge, setSelectedChallenge] = useState<number | null>(
@@ -28,20 +33,21 @@ export function Challenges() {
 
   async function getUserChallenges() {
     try {
-      // user response
-      const userRes = await fetch('/api/user-challenges/1');
+      if (!user || !user.id) {
+        setUserChallenge([]);
+        return;
+      }
+
+      const userRes = await fetch(`/api/user-challenges/${user.id}`);
       if (!userRes.ok) {
         throw new Error(`Failed to fetch user_challenges. (${userRes.status})`);
       }
 
-      // user challenge data
       const userData = await userRes.json();
-      console.log('user_challenge json:', userData);
-
       setUserChallenge(userData);
-      console.log('userCompletion', userChallenge);
     } catch (err) {
       setError(err);
+      setUserChallenge([]);
     }
   }
 
@@ -53,21 +59,18 @@ export function Challenges() {
           throw new Error(`Failed to fetch challenges. (${res.status})`);
         }
 
-        // challenges data
         const data = await res.json();
-        console.log('challenge json:', data);
-
         setChallenge(data);
         setIsLoading(false);
-        console.log('challenge', challenge);
       } catch (err) {
         setError(err);
+        setIsLoading(false);
       }
     }
 
     getChallenges();
     getUserChallenges();
-  }, []);
+  }, [user]);
 
   const handleCategoryToggle = (category: string) => {
     setSelectedCategory((prev) => (prev === category ? '' : category));
@@ -86,7 +89,6 @@ export function Challenges() {
   }
 
   if (error || !challenge) {
-    console.error('fetch error:', error);
     return (
       <div>
         Error! {error instanceof Error ? error.message : 'Unknown error'}
@@ -105,6 +107,7 @@ export function Challenges() {
       selectedChallenge={selectedChallenge}
       points={points}
       refreshUserChallenges={getUserChallenges}
+      user={user}
     />
   );
 }

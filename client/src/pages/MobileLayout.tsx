@@ -16,21 +16,20 @@ export function MobileLayout({
   handleSubmit,
   openModal = () => {},
   closeModal = () => {},
+  user,
 }: LayoutProps) {
   return (
     <>
       <div className="dashboard-container">
         <div className="dashboard-col gap-6">
-          {/* User's Name */}
           <div className="dashboard-row">
-            <h1 className="text-3xl">Hi, Jesus</h1>
+            <h1 className="text-3xl">Hi, {user?.firstName || 'Friend'}</h1>
           </div>
 
-          {/* Stats */}
           <div className="dashboard-row space-between">
             <p className="text-xl">Your stats</p>
             <Link
-              to="/calendar"
+              to="/app/calendar"
               state={{
                 completedChallenges: progress?.completedChallenges,
                 currentStreak: progress?.currentStreak,
@@ -39,13 +38,11 @@ export function MobileLayout({
             </Link>
           </div>
 
-          {/* Challenges and Streaks */}
           <Streaks
             completedChallenges={progress?.completedChallenges}
             currentStreak={progress?.currentStreak}
           />
 
-          {/* 7 Day Tracker */}
           <div className="dashboard-row space-between padding-top">
             <div className="dashboard-col center start">
               <p>Once you start logging we will track your progress here.</p>
@@ -58,11 +55,10 @@ export function MobileLayout({
             </div>
           </div>
 
-          {/* Plant */}
           <div className="dashboard-row center">
             <div className="dashboard-col center progress">
               <img className="plant" src={plantIcon} alt="plant" />
-              <p>Your plant is level: {progress?.level}</p>
+              <p>Your plant is level: {progress?.level ?? 1}</p>
               <div className="progress-bar">
                 <div
                   className="fill-bar"

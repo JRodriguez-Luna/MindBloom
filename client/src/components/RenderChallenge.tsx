@@ -1,6 +1,7 @@
 import { FormEvent, useState } from 'react';
 import { Modal } from '../pages/Modal';
 import { useNavigate } from 'react-router-dom';
+import { User } from '../pages/Types';
 
 type RenderChallengeProps = {
   selectedCategory: string;
@@ -9,6 +10,7 @@ type RenderChallengeProps = {
   setIsOpen: (open: boolean) => void;
   points: number | null;
   refreshUserChallenges: () => Promise<void>;
+  user: User | null;
 };
 
 export function RenderChallenge({
@@ -18,8 +20,10 @@ export function RenderChallenge({
   setIsOpen,
   points,
   refreshUserChallenges,
+  user,
 }: RenderChallengeProps) {
   const [error, setError] = useState<boolean[]>([]);
+  const [submitError, setSubmitError] = useState<string | null>(null);
   const navigate = useNavigate();
 
   if (!isOpen) return null;
@@ -27,6 +31,12 @@ export function RenderChallenge({
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     try {
       event.preventDefault();
+      setSubmitError(null);
+
+      if (!user || !user.id) {
+        setSubmitError('Please sign in to complete challenges');
+        return;
+      }
 
       const form = event.currentTarget;
       const formData = new FormData(form);
@@ -35,30 +45,36 @@ export function RenderChallenge({
       setError(errors);
 
       if (errors.includes(true)) {
-        console.warn('Please fill in all fields');
         return;
       }
 
-      // Get challenges
       const challengesResponse = await fetch('/api/challenges');
       if (!challengesResponse.ok) throw new Error('Failed to fetch challenges');
       const challenges = await challengesResponse.json();
+
+      if (!challenges || !challenges[selectedChallenge!]) {
+        throw new Error('Challenge not found');
+      }
+
       const challengeId = challenges[selectedChallenge!].id;
 
-      const res = await fetch('/api/user-challenges/completion/1', {
+      const res = await fetch(`/api/user-challenges/completion/${user.id}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ challengeId, isComplete: true, points }),
       });
 
-      if (!res.ok) throw new Error('Submission failed');
+      if (!res.ok) {
+        const errorData = await res.json().catch(() => null);
+        throw new Error(errorData?.message || 'Submission failed');
+      }
 
-      form.reset(); // Reset form inputs
+      form.reset();
       setIsOpen(false);
       setError([]);
-      refreshUserChallenges();
+      await refreshUserChallenges();
     } catch (err) {
-      console.error('Error:', err);
+      setSubmitError(err instanceof Error ? err.message : 'An error occurred');
     }
   };
 
@@ -66,7 +82,6 @@ export function RenderChallenge({
     case 'Daily':
       switch (selectedChallenge) {
         case 0:
-          console.log(points);
           return (
             <Modal isOpen={isOpen} onClose={() => setIsOpen(false)}>
               <form
@@ -103,6 +118,8 @@ export function RenderChallenge({
                     />
                   </label>
                 </div>
+
+                {submitError && <p className="text-red-500">{submitError}</p>}
 
                 <div className="flex w-full justify-between items-center">
                   <button type="button" onClick={() => setIsOpen(false)}>

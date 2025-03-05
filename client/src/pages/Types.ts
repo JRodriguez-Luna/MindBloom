@@ -3,6 +3,13 @@ export type Mood = {
   emojiPath: string;
 };
 
+export type User = {
+  id: string | number;
+  email: string;
+  firstName?: string;
+  lastName?: string;
+};
+
 export type StreaksProps = {
   completedChallenges?: number;
   currentStreak?: number;
@@ -14,9 +21,9 @@ export type MoodData = {
 };
 
 export type Progress = {
-  totalPoints?: number;
-  level?: number;
-  progress?: number;
+  totalPoints: number;
+  level: number;
+  progress: number;
   currentStreak: number;
   completedChallenges: number;
 };
@@ -32,4 +39,5 @@ export type LayoutProps = {
   handleSubmit: (event: React.FormEvent<HTMLFormElement>) => void;
   openModal?: () => void;
   closeModal?: () => void;
+  user: User | null;
 };
