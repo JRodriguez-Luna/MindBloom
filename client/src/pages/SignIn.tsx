@@ -19,7 +19,6 @@ export function SignIn({ setUser }: SignInProps) {
     try {
       const formData = new FormData(event.currentTarget);
       const formEntries = Object.fromEntries(formData);
-      console.log('formEntries', formEntries);
 
       // validation
       if (!formEntries) {
@@ -38,8 +37,6 @@ export function SignIn({ setUser }: SignInProps) {
       }
 
       const data = await res.json();
-      console.log('Server response:', data);
-
       if (!data.user || !data.user.id) {
         throw new Error('Invalid user data received from server');
       }
