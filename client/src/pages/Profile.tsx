@@ -1,17 +1,38 @@
 import './Profile.css';
 import { MdLogout } from 'react-icons/md';
 import { User } from './Types';
+import { useNavigate } from 'react-router-dom';
+import { useEffect, useState } from 'react';
 
 type ProfileProps = {
   user: User | null;
+  setUser: (user: User | null) => void;
 };
 
-export function Profile({ user }: ProfileProps) {
+export function Profile({ user, setUser }: ProfileProps) {
+  const navigate = useNavigate();
+
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
+
+  useEffect(() => {
+    if (isLoggingOut && user === null) {
+      navigate('/');
+    }
+  }, [user, isLoggingOut, navigate]);
+
+  const handleLogout = () => {
+    setIsLoggingOut(true);
+    setUser(null);
+  };
+
   if (!user?.firstName || !user?.lastName || !user.email) {
-    console.error('Failed to get profile details');
-    return;
+    return (
+      <div className="profile-container profile-col">
+        Loading profile information...
+      </div>
+    );
   }
-  const userName = user.firstName + user.lastName;
+  const userName = user.firstName + ' ' + user.lastName;
 
   return (
     <div className="profile-container">
@@ -30,7 +51,9 @@ export function Profile({ user }: ProfileProps) {
         </div>
 
         <div className="profile-row justify-center items-center">
-          <button className="logout-button profile-row justify-evenly items-center text-xl">
+          <button
+            className="logout-button profile-row justify-evenly items-center text-xl"
+            onClick={handleLogout}>
             <MdLogout className="text-3xl" />
             Logout
           </button>

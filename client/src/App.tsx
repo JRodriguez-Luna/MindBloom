@@ -22,7 +22,10 @@ export default function App() {
       <Route path="/app" element={<NavBar />}>
         <Route index element={<Dashboard user={user} />} />
         <Route path="challenges" element={<Challenges user={user} />} />
-        <Route path="profile" element={<Profile user={user} />} />
+        <Route
+          path="profile"
+          element={<Profile user={user} setUser={setUser} />}
+        />
         <Route path="calendar" element={<CalendarView user={user} />} />
       </Route>
     </Routes>

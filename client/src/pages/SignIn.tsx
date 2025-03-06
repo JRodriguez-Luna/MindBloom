@@ -40,12 +40,10 @@ export function SignIn({ setUser }: SignInProps) {
       const data = await res.json();
       console.log('Server response:', data);
 
-      // Make sure we have a user with an id before setting the user
       if (!data.user || !data.user.id) {
         throw new Error('Invalid user data received from server');
       }
 
-      // Set the user state with the response data
       setUser(data.user);
       navigate('/app');
     } catch (err) {
