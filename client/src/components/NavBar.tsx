@@ -1,16 +1,14 @@
 import logoIcon from '/images/icons/logo.svg';
-import { useState } from 'react';
-import { Outlet, Link } from 'react-router-dom';
+import { Outlet, Link, useLocation } from 'react-router-dom';
 import './NavBar.css';
 
 export function NavBar() {
-  const [selected, isSelected] = useState<number>(0);
+  // Use the useLocation hook to get the current path
+  const location = useLocation();
+  const currentPath = location.pathname;
 
-  const handleSelected = (index: number) => {
-    isSelected(index);
-  };
-
-  const navItem = [
+  // Define the navigation items
+  const navItems = [
     {
       path: '/app',
       src: '/images/icons/dashboard.svg',
@@ -28,25 +26,32 @@ export function NavBar() {
     },
   ];
 
+  // Function to determine if an item is selected based on the current path
+  const isSelected = (path: string) => {
+    // Exact match for dashboard
+    if (path === '/app' && currentPath === '/app') {
+      return true;
+    }
+
+    return path !== '/app' && currentPath.startsWith(path);
+  };
+
   return (
     <>
       <div className="nav-container desktop-nav-container">
         <nav className="row icons">
           <img className="desktop-logo" src={logoIcon} alt="logo" />
-          {navItem.map((item, index) => (
-            <Link
-              to={item.path}
-              key={index}
-              onClick={() => handleSelected(index)}>
+          {navItems.map((item) => (
+            <Link to={item.path} key={item.path}>
               <div
                 className={`icon-box ${
-                  selected === index ? 'selected-box' : ''
+                  isSelected(item.path) ? 'selected-box' : ''
                 }`}>
                 <img
                   src={item.src}
                   alt={item.alt}
                   className={`${
-                    selected === index ? 'filter brightness-0 invert' : ''
+                    isSelected(item.path) ? 'filter brightness-0 invert' : ''
                   }`}
                 />
               </div>
