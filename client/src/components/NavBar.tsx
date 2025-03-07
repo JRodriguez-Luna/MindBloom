@@ -3,11 +3,9 @@ import { Outlet, Link, useLocation } from 'react-router-dom';
 import './NavBar.css';
 
 export function NavBar() {
-  // Use the useLocation hook to get the current path
   const location = useLocation();
   const currentPath = location.pathname;
 
-  // Define the navigation items
   const navItems = [
     {
       path: '/app',
