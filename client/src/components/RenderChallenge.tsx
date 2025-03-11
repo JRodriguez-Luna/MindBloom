@@ -2,6 +2,7 @@ import { FormEvent, useState } from 'react';
 import { Modal } from '../pages/Modal';
 import { useNavigate } from 'react-router-dom';
 import { User } from '../pages/Types';
+import { getAuthHeaders } from '../lib/auth';
 
 type RenderChallengeProps = {
   selectedCategory: string;
@@ -48,7 +49,11 @@ export function RenderChallenge({
         return;
       }
 
-      const challengesResponse = await fetch('/api/challenges');
+      const challengesResponse = await fetch('/api/challenges', {
+        headers: {
+          ...getAuthHeaders(),
+        },
+      });
       if (!challengesResponse.ok) throw new Error('Failed to fetch challenges');
       const challenges = await challengesResponse.json();
 
@@ -60,7 +65,10 @@ export function RenderChallenge({
 
       const res = await fetch(`/api/user-challenges/completion/${user.id}`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          ...getAuthHeaders(),
+        },
         body: JSON.stringify({ challengeId, isComplete: true, points }),
       });
 

@@ -2,6 +2,7 @@ import { ChangeEvent, FormEvent, useEffect, useState } from 'react';
 import { MobileLayout } from './MobileLayout';
 import { DesktopLayout } from './DesktopLayout';
 import { Mood, Progress, User } from './Types';
+import { getAuthHeaders } from '../lib/auth';
 
 type DashboardProps = {
   user: User | null;
@@ -27,10 +28,19 @@ export function Dashboard({ user }: DashboardProps) {
         return;
       }
 
-      const progressReq = await fetch(`/api/progress/${user.id}`);
+      const progressReq = await fetch(`/api/progress/${user.id}`, {
+        headers: {
+          ...getAuthHeaders(),
+        },
+      });
 
       if (progressReq.status === 404) {
-        await fetch(`/api/progress/${user.id}`, { method: 'POST' });
+        await fetch(`/api/progress/${user.id}`, {
+          method: 'POST',
+          headers: {
+            ...getAuthHeaders(),
+          },
+        });
         return getProgress();
       }
 
@@ -50,7 +60,11 @@ export function Dashboard({ user }: DashboardProps) {
   useEffect(() => {
     async function getMoods() {
       try {
-        const moodReq = await fetch('/api/moods');
+        const moodReq = await fetch('/api/moods', {
+          headers: {
+            ...getAuthHeaders(),
+          },
+        });
         if (!moodReq.ok) {
           throw new Error(`Failed to fetch moods. (${moodReq.status})`);
         }
@@ -99,6 +113,7 @@ export function Dashboard({ user }: DashboardProps) {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          ...getAuthHeaders(),
         },
         body: JSON.stringify({ mood, detail }),
       });

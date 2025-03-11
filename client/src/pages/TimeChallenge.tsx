@@ -6,6 +6,7 @@ import { ContinueButton } from '../components/ContinueButton';
 import logo from '/images/icons/logo.svg';
 import './TimeChallenge.css';
 import { User } from './Types';
+import { getAuthHeaders } from '../lib/auth';
 
 type TimeChallengeProps = {
   user: User | null;
@@ -85,7 +86,11 @@ export function TimeChallenge({ user }: TimeChallengeProps) {
         return;
       }
 
-      const challengesResponse = await fetch('/api/challenges');
+      const challengesResponse = await fetch('/api/challenges', {
+        headers: {
+          ...getAuthHeaders(),
+        },
+      });
       if (!challengesResponse.ok) throw new Error('Failed to fetch challenges');
       const challenges = await challengesResponse.json();
 
@@ -102,7 +107,10 @@ export function TimeChallenge({ user }: TimeChallengeProps) {
 
       const res = await fetch(`/api/user-challenges/completion/${user.id}`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          ...getAuthHeaders(),
+        },
         body: JSON.stringify({ challengeId, isComplete: true, points }),
       });
 
