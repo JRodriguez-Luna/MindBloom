@@ -3,6 +3,7 @@ import { MdLogout } from 'react-icons/md';
 import { User } from './Types';
 import { useNavigate } from 'react-router-dom';
 import { useEffect, useState } from 'react';
+import { removeAuth } from '../lib/auth';
 
 type ProfileProps = {
   user: User | null;
@@ -22,6 +23,7 @@ export function Profile({ user, setUser }: ProfileProps) {
 
   const handleLogout = () => {
     setIsLoggingOut(true);
+    removeAuth();
     setUser(null);
   };
 

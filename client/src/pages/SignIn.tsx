@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import './RegistrationLogin.css';
 import { FormEvent, useState } from 'react';
 import { User } from './Types.ts';
+import { saveAuth } from '../lib/auth.ts';
 
 type SignInProps = {
   setUser: (user: User | null) => void;
@@ -39,6 +40,10 @@ export function SignIn({ setUser }: SignInProps) {
       const data = await res.json();
       if (!data.user || !data.user.id) {
         throw new Error('Invalid user data received from server');
+      }
+
+      if (data.token) {
+        saveAuth(data.user, data.token);
       }
 
       setUser(data.user);

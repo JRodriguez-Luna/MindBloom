@@ -4,6 +4,7 @@ import { LayoutProps } from './Types';
 import Calendar from 'react-calendar';
 import './Calendar.css';
 import { useEffect, useState } from 'react';
+import { getAuthHeaders } from '../lib/auth';
 
 type ValuePiece = Date | null;
 type CalendarValue = ValuePiece | [ValuePiece, ValuePiece];
@@ -42,7 +43,12 @@ export function DesktopLayout({
         }-${selectedDate.getDate()}`;
 
         const res = await fetch(
-          `/api/mood-tracking/${user.id}?date=${formattedDate}`
+          `/api/mood-tracking/${user.id}?date=${formattedDate}`,
+          {
+            headers: {
+              ...getAuthHeaders(),
+            },
+          }
         );
         if (!res.ok) {
           throw new Error('Failed to fetch mood data');

@@ -2,7 +2,7 @@
 import 'dotenv/config';
 import express from 'express';
 import pg from 'pg';
-import { ClientError, errorMiddleware } from './lib/index.js';
+import { ClientError, errorMiddleware, authMiddleware } from './lib/index.js';
 import argon2 from 'argon2';
 import jwt from 'jsonwebtoken';
 
@@ -106,7 +106,7 @@ app.post('/api/auth/sign-in', async (req, res, next) => {
   }
 });
 
-app.get('/api/progress/:userId', async (req, res, next) => {
+app.get('/api/progress/:userId', authMiddleware, async (req, res, next) => {
   try {
     const userId = req.params.userId;
 
@@ -147,7 +147,7 @@ app.get('/api/progress/:userId', async (req, res, next) => {
   }
 });
 
-app.get('/api/moods', async (req, res, next) => {
+app.get('/api/moods', authMiddleware, async (req, res, next) => {
   try {
     const sql = `
       select "moodName", "emojiPath"
@@ -165,25 +165,28 @@ app.get('/api/moods', async (req, res, next) => {
   }
 });
 
-app.get('/api/mood-tracking/:userId', async (req, res, next) => {
-  try {
-    const { date } = req.query;
-    const userId = req.params.userId;
+app.get(
+  '/api/mood-tracking/:userId',
+  authMiddleware,
+  async (req, res, next) => {
+    try {
+      const { date } = req.query;
+      const userId = req.params.userId;
 
-    if (
-      Number.isNaN(userId) ||
-      !Number.isInteger(+userId) ||
-      Number(userId) < 1
-    ) {
-      throw new ClientError(400, 'Invalid userId.');
-    }
+      if (
+        Number.isNaN(userId) ||
+        !Number.isInteger(+userId) ||
+        Number(userId) < 1
+      ) {
+        throw new ClientError(400, 'Invalid userId.');
+      }
 
-    if (!date) {
-      throw new ClientError(400, 'Missing logDate');
-    }
+      if (!date) {
+        throw new ClientError(400, 'Missing logDate');
+      }
 
-    //  Get the users most recent log script
-    const sqlRecentMood = `
+      //  Get the users most recent log script
+      const sqlRecentMood = `
       select
         "logDate", "moodId"
       from mood_logs
@@ -192,35 +195,36 @@ app.get('/api/mood-tracking/:userId', async (req, res, next) => {
       limit 1;
     `;
 
-    const [recentMood] = (await db.query(sqlRecentMood, [userId, date])).rows;
-    if (!recentMood) {
-      return res.status(200).json({
-        logDate: date,
-        emojiPath: null,
-      });
-    }
+      const [recentMood] = (await db.query(sqlRecentMood, [userId, date])).rows;
+      if (!recentMood) {
+        return res.status(200).json({
+          logDate: date,
+          emojiPath: null,
+        });
+      }
 
-    const sqlMood = `
+      const sqlMood = `
       select "emojiPath"
       from mood
       where "id" = $1;
     `;
 
-    const [moodPath] = (await db.query(sqlMood, [recentMood.moodId])).rows;
-    if (!moodPath) {
-      throw new ClientError(404, `Id ${recentMood.moodId} does not exist.`);
+      const [moodPath] = (await db.query(sqlMood, [recentMood.moodId])).rows;
+      if (!moodPath) {
+        throw new ClientError(404, `Id ${recentMood.moodId} does not exist.`);
+      }
+
+      res.status(200).json({
+        logDate: recentMood.logDate,
+        emojiPath: moodPath.emojiPath,
+      });
+    } catch (err) {
+      next(err);
     }
-
-    res.status(200).json({
-      logDate: recentMood.logDate,
-      emojiPath: moodPath.emojiPath,
-    });
-  } catch (err) {
-    next(err);
   }
-});
+);
 
-app.post('/api/mood-logs/:userId', async (req, res, next) => {
+app.post('/api/mood-logs/:userId', authMiddleware, async (req, res, next) => {
   try {
     const { mood, detail } = req.body;
     const userId = req.params.userId;
@@ -326,7 +330,7 @@ app.post('/api/mood-logs/:userId', async (req, res, next) => {
 });
 
 //  Get stored challenges
-app.get('/api/challenges', async (req, res, next) => {
+app.get('/api/challenges', authMiddleware, async (req, res, next) => {
   try {
     const sql = `
       select *
@@ -345,117 +349,124 @@ app.get('/api/challenges', async (req, res, next) => {
 });
 
 // Get users challenge status
-app.get('/api/user-challenges/:userId', async (req, res, next) => {
-  try {
-    const userId = req.params.userId;
-    if (isNaN(+userId) || !Number.isInteger(+userId) || +userId < 1) {
-      throw new ClientError(400, 'Invalid userId.');
-    }
+app.get(
+  '/api/user-challenges/:userId',
+  authMiddleware,
+  async (req, res, next) => {
+    try {
+      const userId = req.params.userId;
+      if (isNaN(+userId) || !Number.isInteger(+userId) || +userId < 1) {
+        throw new ClientError(400, 'Invalid userId.');
+      }
 
-    const sql = `
+      const sql = `
       select "challengeId", "isCompleted"
       from user_challenges
       where "userId" = $1
       order by "challengeId" asc;
     `;
 
-    const userChallenges = (await db.query(sql, [userId])).rows;
-    if (!userChallenges) {
-      throw new ClientError(404, `User with id ${userId} does not exists.`);
-    }
+      const userChallenges = (await db.query(sql, [userId])).rows;
+      if (!userChallenges) {
+        throw new ClientError(404, `User with id ${userId} does not exists.`);
+      }
 
-    res.status(200).json(userChallenges);
-  } catch (err) {
-    next(err);
+      res.status(200).json(userChallenges);
+    } catch (err) {
+      next(err);
+    }
   }
-});
+);
 
 //  Update challenges if completed or not
-app.post('/api/user-challenges/completion/:userId', async (req, res, next) => {
-  try {
-    const { challengeId, isComplete, points } = req.body;
-    const userId = req.params.userId;
+app.post(
+  '/api/user-challenges/completion/:userId',
+  authMiddleware,
+  async (req, res, next) => {
+    try {
+      const { challengeId, isComplete, points } = req.body;
+      const userId = req.params.userId;
 
-    // Input validation
-    if (typeof isComplete !== 'boolean') {
-      throw new ClientError(400, `Invalid. 'isComplete' must be a boolean.`);
-    }
+      // Input validation
+      if (typeof isComplete !== 'boolean') {
+        throw new ClientError(400, `Invalid. 'isComplete' must be a boolean.`);
+      }
 
-    if (
-      Number.isNaN(challengeId) ||
-      !Number.isInteger(+challengeId) ||
-      Number(challengeId) < 1
-    ) {
-      throw new ClientError(400, 'Invalid challengeId.');
-    }
+      if (
+        Number.isNaN(challengeId) ||
+        !Number.isInteger(+challengeId) ||
+        Number(challengeId) < 1
+      ) {
+        throw new ClientError(400, 'Invalid challengeId.');
+      }
 
-    if (
-      Number.isNaN(userId) ||
-      !Number.isInteger(+userId) ||
-      Number(userId) < 1
-    ) {
-      throw new ClientError(400, 'Invalid userId.');
-    }
+      if (
+        Number.isNaN(userId) ||
+        !Number.isInteger(+userId) ||
+        Number(userId) < 1
+      ) {
+        throw new ClientError(400, 'Invalid userId.');
+      }
 
-    if (
-      Number.isNaN(points) ||
-      !Number.isInteger(+points) ||
-      Number(points) < 1
-    ) {
-      throw new ClientError(400, 'Invalid points.');
-    }
+      if (
+        Number.isNaN(points) ||
+        !Number.isInteger(+points) ||
+        Number(points) < 1
+      ) {
+        throw new ClientError(400, 'Invalid points.');
+      }
 
-    const userCheckSql = `
+      const userCheckSql = `
       select id from users where id = $1;
     `;
-    const userCheckResult = await db.query(userCheckSql, [userId]);
-    if (userCheckResult.rows.length === 0) {
-      throw new ClientError(404, `User with ID ${userId} does not exist.`);
-    }
+      const userCheckResult = await db.query(userCheckSql, [userId]);
+      if (userCheckResult.rows.length === 0) {
+        throw new ClientError(404, `User with ID ${userId} does not exist.`);
+      }
 
-    const challengeCheckSql = `
+      const challengeCheckSql = `
       select id from challenges where id = $1;
     `;
-    const challengeCheckResult = await db.query(challengeCheckSql, [
-      challengeId,
-    ]);
-    if (challengeCheckResult.rows.length === 0) {
-      throw new ClientError(
-        404,
-        `Challenge with ID ${challengeId} does not exist.`
-      );
-    }
+      const challengeCheckResult = await db.query(challengeCheckSql, [
+        challengeId,
+      ]);
+      if (challengeCheckResult.rows.length === 0) {
+        throw new ClientError(
+          404,
+          `Challenge with ID ${challengeId} does not exist.`
+        );
+      }
 
-    const checkUserChallengeSql = `
+      const checkUserChallengeSql = `
       select * from user_challenges
       where "userId" = $1 and "challengeId" = $2;
     `;
-    const userChallengeResult = await db.query(checkUserChallengeSql, [
-      userId,
-      challengeId,
-    ]);
+      const userChallengeResult = await db.query(checkUserChallengeSql, [
+        userId,
+        challengeId,
+      ]);
 
-    let challengeCompleted;
+      let challengeCompleted;
 
-    if (userChallengeResult.rows.length === 0) {
-      // If record doesn't exist, insert a new one
-      const insertSql = `
+      if (userChallengeResult.rows.length === 0) {
+        // If record doesn't exist, insert a new one
+        const insertSql = `
         insert into user_challenges ("userId", "challengeId", "isCompleted", "completionDate")
         values ($1, $2, $3, CURRENT_DATE)
         returning *;
       `;
-      const insertResult = await db.query(insertSql, [
-        userId,
-        challengeId,
-        isComplete,
-      ]);
-      challengeCompleted = insertResult.rows[0];
+        const insertResult = await db.query(insertSql, [
+          userId,
+          challengeId,
+          isComplete,
+        ]);
+        challengeCompleted = insertResult.rows[0];
 
-      console.log(
-        `Created new user_challenge record for user ${userId}, challenge ${challengeId}`
-      );
-    } else {
-      const updateSql = `
+        console.log(
+          `Created new user_challenge record for user ${userId}, challenge ${challengeId}`
+        );
+      } else {
+        const updateSql = `
         update user_challenges
         set
           "isCompleted" = $1,
@@ -464,64 +475,66 @@ app.post('/api/user-challenges/completion/:userId', async (req, res, next) => {
           "userId" = $2 and "challengeId" = $3
         returning *;
       `;
-      const updateResult = await db.query(updateSql, [
-        isComplete,
-        userId,
-        challengeId,
-      ]);
-      challengeCompleted = updateResult.rows[0];
+        const updateResult = await db.query(updateSql, [
+          isComplete,
+          userId,
+          challengeId,
+        ]);
+        challengeCompleted = updateResult.rows[0];
 
-      console.log(
-        `Updated existing user_challenge record for user ${userId}, challenge ${challengeId}`
-      );
-    }
+        console.log(
+          `Updated existing user_challenge record for user ${userId}, challenge ${challengeId}`
+        );
+      }
 
-    if (!challengeCompleted) {
-      throw new ClientError(500, `Failed to record challenge completion.`);
-    }
+      if (!challengeCompleted) {
+        throw new ClientError(500, `Failed to record challenge completion.`);
+      }
 
-    const sqlUpdateTotalPoints = `
+      const sqlUpdateTotalPoints = `
       update progress
       set "totalPoints" = "totalPoints" + $1
       where "userId" = $2
       returning *;
     `;
 
-    const [updatedProgress] = (
-      await db.query(sqlUpdateTotalPoints, [points, userId])
-    ).rows;
+      const [updatedProgress] = (
+        await db.query(sqlUpdateTotalPoints, [points, userId])
+      ).rows;
 
-    // Increment every 10 points
-    const newLevel = Math.floor(updatedProgress.totalPoints / 10) + 1;
+      // Increment every 10 points
+      const newLevel = Math.floor(updatedProgress.totalPoints / 10) + 1;
 
-    // only trigger if level is greater than the current level
-    if (newLevel > updatedProgress.level) {
-      const sqlUpdateLevel = `
+      // only trigger if level is greater than the current level
+      if (newLevel > updatedProgress.level) {
+        const sqlUpdateLevel = `
         update progress
         set "level" = $1
         where "userId" = $2
         returning "level";
       `;
 
-      const [updateLevel] = (await db.query(sqlUpdateLevel, [newLevel, userId]))
-        .rows;
-      if (!updateLevel) {
-        throw new ClientError(
-          404,
-          `Failed to update level for user with ID ${userId}.`
-        );
+        const [updateLevel] = (
+          await db.query(sqlUpdateLevel, [newLevel, userId])
+        ).rows;
+        if (!updateLevel) {
+          throw new ClientError(
+            404,
+            `Failed to update level for user with ID ${userId}.`
+          );
+        }
       }
-    }
 
-    res.status(200).json({
-      challengeCompleted,
-      updatedProgress,
-      updatedLevel: newLevel,
-    });
-  } catch (err) {
-    next(err);
+      res.status(200).json({
+        challengeCompleted,
+        updatedProgress,
+        updatedLevel: newLevel,
+      });
+    } catch (err) {
+      next(err);
+    }
   }
-});
+);
 
 /*
  * Handles paths that aren't handled by any other route handler.

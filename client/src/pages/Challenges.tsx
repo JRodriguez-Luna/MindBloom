@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { ChallengeCard } from './ChallengeCard';
 import { User } from './Types';
+import { getAuthHeaders } from '../lib/auth';
 
 export type Challenge = {
   id: number;
@@ -38,7 +39,11 @@ export function Challenges({ user }: ChallengesProps) {
         return;
       }
 
-      const userRes = await fetch(`/api/user-challenges/${user.id}`);
+      const userRes = await fetch(`/api/user-challenges/${user.id}`, {
+        headers: {
+          ...getAuthHeaders(),
+        },
+      });
       if (!userRes.ok) {
         throw new Error(`Failed to fetch user_challenges. (${userRes.status})`);
       }
@@ -54,7 +59,11 @@ export function Challenges({ user }: ChallengesProps) {
   useEffect(() => {
     async function getChallenges() {
       try {
-        const res = await fetch('/api/challenges');
+        const res = await fetch('/api/challenges', {
+          headers: {
+            ...getAuthHeaders(),
+          },
+        });
         if (!res.ok) {
           throw new Error(`Failed to fetch challenges. (${res.status})`);
         }

@@ -6,6 +6,7 @@ import { useState, useEffect } from 'react';
 import Calendar from 'react-calendar';
 import './Calendar.css';
 import { User } from './Types';
+import { getAuthHeaders } from '../lib/auth';
 
 type CalendarViewProps = {
   user: User | null;
@@ -47,7 +48,12 @@ export function CalendarView({ user }: CalendarViewProps) {
 
         if (!user?.id) return;
         const res = await fetch(
-          `/api/mood-tracking/${user.id}?date=${formattedDate}`
+          `/api/mood-tracking/${user.id}?date=${formattedDate}`,
+          {
+            headers: {
+              ...getAuthHeaders(),
+            },
+          }
         );
         if (!res.ok) throw new Error('Failed to fetch mood data');
 
