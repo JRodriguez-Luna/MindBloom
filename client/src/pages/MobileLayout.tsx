@@ -43,15 +43,75 @@ export function MobileLayout({
             currentStreak={progress?.currentStreak}
           />
 
-          <div className="dashboard-row space-between padding-top">
-            <div className="dashboard-col center start">
-              <p>Once you start logging we will track your progress here.</p>
+          <div className="dashboard-row w-full h-15 items-center">
+            {/* Monday */}
+            <div className="flex flex-col items-center">
+              <img
+                className="emoji-icon"
+                src="/images/emoji/happy.svg"
+                alt="happy"
+              />
+              <p>M</p>
             </div>
-            <div className="dashboard-col center flex end">
-              <div className="dashboard-row">
-                <p>Circle Here</p>
-              </div>
-              <div className="dashboard-row">Today</div>
+
+            {/* Tuesday */}
+            <div className="flex flex-col items-center">
+              <img
+                className="emoji-icon"
+                src="/images/emoji/happy.svg"
+                alt="happy"
+              />
+              <p>M</p>
+            </div>
+
+            {/* Wednesday */}
+            <div className="flex flex-col items-center">
+              <img
+                className="emoji-icon"
+                src="/images/emoji/happy.svg"
+                alt="happy"
+              />
+              <p>M</p>
+            </div>
+
+            {/* Thursday */}
+            <div className="flex flex-col items-center">
+              <img
+                className="emoji-icon"
+                src="/images/emoji/happy.svg"
+                alt="happy"
+              />
+              <p>M</p>
+            </div>
+
+            {/* Friday */}
+            <div className="flex flex-col items-center">
+              <img
+                className="emoji-icon"
+                src="/images/emoji/happy.svg"
+                alt="happy"
+              />
+              <p>M</p>
+            </div>
+
+            {/* Saturday */}
+            <div className="flex flex-col items-center">
+              <img
+                className="emoji-icon"
+                src="/images/emoji/happy.svg"
+                alt="happy"
+              />
+              <p>M</p>
+            </div>
+
+            {/* Sunday */}
+            <div className="flex flex-col items-center">
+              <img
+                className="emoji-icon"
+                src="/images/emoji/happy.svg"
+                alt="happy"
+              />
+              <p>M</p>
             </div>
           </div>
 
