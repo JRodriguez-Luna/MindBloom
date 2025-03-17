@@ -17,12 +17,17 @@ export function WeeklyMoodTracker({
   refreshTrigger = 0,
 }: WeeklyMoodTrackerProps) {
   const [historyTracker, setHistoryTracker] = useState<WeeklyTrackerData[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     async function fetchMoodHistory() {
+      setIsLoading(true);
+      setError(null);
+
       try {
         if (!userId) {
-          console.error('Failed to get user.id');
+          setIsLoading(false);
           return;
         }
 
@@ -32,12 +37,21 @@ export function WeeklyMoodTracker({
           },
         });
 
-        if (!res.ok) throw new Error(`Response Status: ${res.status}`);
+        if (!res.ok) {
+          throw new Error(`Request failed with status: ${res.status}`);
+        }
 
         const data = await res.json();
         setHistoryTracker(data);
       } catch (err) {
-        console.error(`Error fetching weekly mood data: ${err}`);
+        console.error(
+          `Error fetching weekly mood data: ${
+            err instanceof Error ? err.message : String(err)
+          }`
+        );
+        setError('Unable to load mood history. Please try again later.');
+      } finally {
+        setIsLoading(false);
       }
     }
 
@@ -62,6 +76,22 @@ export function WeeklyMoodTracker({
   };
 
   const pastWeek = generatePastWeek();
+
+  if (isLoading) {
+    return (
+      <div className="flex w-full justify-center items-center py-2">
+        <div className="text-sm text-gray-400">Loading mood data...</div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="flex w-full justify-center items-center py-2">
+        <div className="text-sm text-red-400">{error}</div>
+      </div>
+    );
+  }
 
   return (
     <div className="flex w-full justify-between items-center">

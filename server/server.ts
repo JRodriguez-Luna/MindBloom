@@ -188,10 +188,7 @@ app.get(
 
       const weeklyMood = (await db.query(sqlMoodWithEmoji, [userId])).rows;
       if (!weeklyMood || weeklyMood.length === 0) {
-        throw new ClientError(
-          404,
-          `Failed to retrieve mood data for user with ID ${userId}.`
-        );
+        return res.status(200).json([]);
       }
 
       res.status(200).json(weeklyMood);
