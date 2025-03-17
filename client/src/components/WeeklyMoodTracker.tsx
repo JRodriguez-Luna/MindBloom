@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import '../pages/MobileLayout.css';
 import { getAuthHeaders } from '../lib/auth';
 
@@ -18,31 +18,31 @@ export function WeeklyMoodTracker({
 }: WeeklyMoodTrackerProps) {
   const [historyTracker, setHistoryTracker] = useState<WeeklyTrackerData[]>([]);
 
-  const fetchMoodHistory = useCallback(async () => {
-    try {
-      if (!userId) {
-        console.error('Failed to get user.id');
-        return;
-      }
-
-      const res = await fetch(`/api/mood-tracking/${userId}/weekly`, {
-        headers: {
-          ...getAuthHeaders(),
-        },
-      });
-
-      if (!res.ok) throw new Error(`Response Status: ${res.status}`);
-
-      const data = await res.json();
-      setHistoryTracker(data);
-    } catch (err) {
-      console.error(`Error fetching weekly mood data: ${err}`);
-    }
-  }, [userId]);
-
   useEffect(() => {
+    async function fetchMoodHistory() {
+      try {
+        if (!userId) {
+          console.error('Failed to get user.id');
+          return;
+        }
+
+        const res = await fetch(`/api/mood-tracking/${userId}/weekly`, {
+          headers: {
+            ...getAuthHeaders(),
+          },
+        });
+
+        if (!res.ok) throw new Error(`Response Status: ${res.status}`);
+
+        const data = await res.json();
+        setHistoryTracker(data);
+      } catch (err) {
+        console.error(`Error fetching weekly mood data: ${err}`);
+      }
+    }
+
     fetchMoodHistory();
-  }, [fetchMoodHistory, refreshTrigger]);
+  }, [userId, refreshTrigger]);
 
   const generatePastWeek = (): { date: string; abbr: string }[] => {
     const result = [];
