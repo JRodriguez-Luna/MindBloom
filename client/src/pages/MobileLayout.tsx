@@ -4,6 +4,8 @@ import './MobileLayout.css';
 import { Link } from 'react-router-dom';
 import { LayoutProps } from './Types';
 import { Streaks } from './Streaks';
+import { useState } from 'react';
+import { WeeklyMoodTracker } from '../components/WeeklyMoodTracker';
 
 export function MobileLayout({
   isOpen,
@@ -13,11 +15,18 @@ export function MobileLayout({
   counter,
   handleSelectedEmoji,
   handleCharacterCount,
-  handleSubmit,
+  handleSubmit: originalHandleSubmit,
   openModal = () => {},
   closeModal = () => {},
   user,
 }: LayoutProps) {
+  const [refreshData, setRefreshData] = useState(0);
+
+  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+    await originalHandleSubmit(event);
+    setRefreshData((prev) => prev + 1);
+  };
+
   return (
     <>
       <div className="dashboard-container">
@@ -43,16 +52,8 @@ export function MobileLayout({
             currentStreak={progress?.currentStreak}
           />
 
-          <div className="dashboard-row space-between padding-top">
-            <div className="dashboard-col center start">
-              <p>Once you start logging we will track your progress here.</p>
-            </div>
-            <div className="dashboard-col center flex end">
-              <div className="dashboard-row">
-                <p>Circle Here</p>
-              </div>
-              <div className="dashboard-row">Today</div>
-            </div>
+          <div className="dashboard-row w-full h-15 items-center">
+            <WeeklyMoodTracker userId={user?.id} refreshTrigger={refreshData} />
           </div>
 
           <div className="dashboard-row center">

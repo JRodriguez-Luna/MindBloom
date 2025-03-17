@@ -5,6 +5,7 @@ import Calendar from 'react-calendar';
 import './Calendar.css';
 import { useEffect, useState } from 'react';
 import { getAuthHeaders } from '../lib/auth';
+import { WeeklyMoodTracker } from '../components//WeeklyMoodTracker';
 
 type ValuePiece = Date | null;
 type CalendarValue = ValuePiece | [ValuePiece, ValuePiece];
@@ -20,11 +21,17 @@ export function DesktopLayout({
   counter,
   handleSelectedEmoji,
   handleCharacterCount,
-  handleSubmit,
+  handleSubmit: originalHandleSubmit,
   user,
 }: LayoutProps) {
   const [moodData, setMoodData] = useState<MoodData | null>(null);
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
+  const [refreshData, setRefreshData] = useState(0);
+
+  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+    await originalHandleSubmit(event);
+    setRefreshData((prev) => prev + 1);
+  };
 
   const handleOnChange = (value: CalendarValue) => {
     if (!(value instanceof Date)) return;
@@ -93,13 +100,7 @@ export function DesktopLayout({
           </div>
 
           <div className="desktop-row space-between day-tracker">
-            <div className="desktop-col justify-start items-start">
-              <p>Once you start logging, we will track your progress here.</p>
-            </div>
-
-            <div className="desktop-col justify-start items-end">
-              <p>Circle Here</p>
-            </div>
+            <WeeklyMoodTracker userId={user?.id} refreshTrigger={refreshData} />
           </div>
 
           <div className="desktop-row">

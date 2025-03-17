@@ -166,6 +166,39 @@ app.get('/api/moods', authMiddleware, async (req, res, next) => {
 });
 
 app.get(
+  '/api/mood-tracking/:userId/weekly',
+  authMiddleware,
+  async (req, res, next) => {
+    try {
+      const userId = req.params.userId;
+
+      if (isNaN(+userId) || !Number.isInteger(+userId) || +userId < 1) {
+        throw new ClientError(404, `User with Id ${userId} does not exist.`);
+      }
+
+      const sqlMoodWithEmoji = `
+      select distinct on (date(ml."logDate"))
+        ml."logDate",
+        m."emojiPath"
+      from mood_logs ml
+      join mood m on ml."moodId" = m."id"
+      where ml."userId" = $1
+      order by date(ml."logDate") desc, ml."createdAt" desc
+    `;
+
+      const weeklyMood = (await db.query(sqlMoodWithEmoji, [userId])).rows;
+      if (!weeklyMood || weeklyMood.length === 0) {
+        return res.status(200).json([]);
+      }
+
+      res.status(200).json(weeklyMood);
+    } catch (err) {
+      next(err);
+    }
+  }
+);
+
+app.get(
   '/api/mood-tracking/:userId',
   authMiddleware,
   async (req, res, next) => {
