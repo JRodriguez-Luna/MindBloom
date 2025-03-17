@@ -4,6 +4,13 @@ import './MobileLayout.css';
 import { Link } from 'react-router-dom';
 import { LayoutProps } from './Types';
 import { Streaks } from './Streaks';
+import { useEffect, useState, useCallback } from 'react';
+import { getAuthHeaders } from '../lib/auth';
+
+type WeeklyTracker = {
+  emojiPath: string;
+  logDate: string;
+};
 
 export function MobileLayout({
   isOpen,
@@ -13,11 +20,64 @@ export function MobileLayout({
   counter,
   handleSelectedEmoji,
   handleCharacterCount,
-  handleSubmit,
+  handleSubmit: originalHandleSubmit,
   openModal = () => {},
   closeModal = () => {},
   user,
 }: LayoutProps) {
+  const [historyTracker, setHistoryTracker] = useState<WeeklyTracker[]>([]);
+  const [refreshData, setRefreshData] = useState(0);
+
+  const fetchMoodHistory = useCallback(async () => {
+    try {
+      if (!user?.id) {
+        console.error('Failed to get user.id');
+        return;
+      }
+
+      const res = await fetch(`/api/mood-tracking/${user.id}/weekly`, {
+        headers: {
+          ...getAuthHeaders(),
+        },
+      });
+
+      if (!res.ok) throw new Error(`Response Status: ${res.status}`);
+
+      const data = await res.json();
+      setHistoryTracker(data);
+    } catch (err) {
+      console.error(`Error fetching weekly mood data: ${err}`);
+    }
+  }, [user?.id]);
+
+  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+    await originalHandleSubmit(event);
+    setRefreshData((prev) => prev + 1);
+  };
+
+  useEffect(() => {
+    fetchMoodHistory();
+  }, [fetchMoodHistory, refreshData]);
+
+  const generatePastWeek = (): { date: string; abbr: string }[] => {
+    const result = [];
+    const today = new Date();
+
+    for (let i = 6; i >= 0; i--) {
+      const day = new Date();
+      day.setDate(today.getDate() - i);
+
+      result.push({
+        date: day.toISOString().split('T')[0],
+        abbr: ['S', 'M', 'T', 'W', 'T', 'F', 'S'][day.getDay()],
+      });
+    }
+
+    return result;
+  };
+
+  const pastWeek = generatePastWeek();
+
   return (
     <>
       <div className="dashboard-container">
@@ -44,75 +104,28 @@ export function MobileLayout({
           />
 
           <div className="dashboard-row w-full h-15 items-center">
-            {/* Monday */}
-            <div className="flex flex-col items-center">
-              <img
-                className="emoji-icon"
-                src="/images/emoji/happy.svg"
-                alt="happy"
-              />
-              <p>M</p>
-            </div>
+            {pastWeek.map((day) => {
+              const dayMood = historyTracker.find(
+                (mood) =>
+                  new Date(mood.logDate).toISOString().split('T')[0] ===
+                  day.date
+              );
 
-            {/* Tuesday */}
-            <div className="flex flex-col items-center">
-              <img
-                className="emoji-icon"
-                src="/images/emoji/happy.svg"
-                alt="happy"
-              />
-              <p>M</p>
-            </div>
-
-            {/* Wednesday */}
-            <div className="flex flex-col items-center">
-              <img
-                className="emoji-icon"
-                src="/images/emoji/happy.svg"
-                alt="happy"
-              />
-              <p>M</p>
-            </div>
-
-            {/* Thursday */}
-            <div className="flex flex-col items-center">
-              <img
-                className="emoji-icon"
-                src="/images/emoji/happy.svg"
-                alt="happy"
-              />
-              <p>M</p>
-            </div>
-
-            {/* Friday */}
-            <div className="flex flex-col items-center">
-              <img
-                className="emoji-icon"
-                src="/images/emoji/happy.svg"
-                alt="happy"
-              />
-              <p>M</p>
-            </div>
-
-            {/* Saturday */}
-            <div className="flex flex-col items-center">
-              <img
-                className="emoji-icon"
-                src="/images/emoji/happy.svg"
-                alt="happy"
-              />
-              <p>M</p>
-            </div>
-
-            {/* Sunday */}
-            <div className="flex flex-col items-center">
-              <img
-                className="emoji-icon"
-                src="/images/emoji/happy.svg"
-                alt="happy"
-              />
-              <p>M</p>
-            </div>
+              return (
+                <div key={day.date} className="flex flex-col items-center">
+                  <img
+                    className="emoji-icon"
+                    src={
+                      dayMood
+                        ? dayMood.emojiPath
+                        : '/images/emoji/gray-neutral.svg'
+                    }
+                    alt="mood"
+                  />
+                  <p>{day.abbr}</p>
+                </div>
+              );
+            })}
           </div>
 
           <div className="dashboard-row center">
