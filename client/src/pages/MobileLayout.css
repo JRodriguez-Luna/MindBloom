@@ -119,3 +119,10 @@ button {
   width: 22px;
   height: 22px;
 }
+
+@media only screen and (width >= 767px) {
+  .emoji-icon {
+    width: 64px;
+    height: 64px;
+  }
+}

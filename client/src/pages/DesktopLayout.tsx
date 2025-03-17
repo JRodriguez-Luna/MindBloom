@@ -3,7 +3,7 @@ import './DesktopLayout.css';
 import { LayoutProps } from './Types';
 import Calendar from 'react-calendar';
 import './Calendar.css';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { getAuthHeaders } from '../lib/auth';
 
 type ValuePiece = Date | null;
@@ -13,6 +13,11 @@ type MoodData = {
   emojiPath: string | null;
 };
 
+type WeeklyTracker = {
+  emojiPath: string;
+  logDate: string;
+};
+
 export function DesktopLayout({
   moods,
   progress,
@@ -20,11 +25,63 @@ export function DesktopLayout({
   counter,
   handleSelectedEmoji,
   handleCharacterCount,
-  handleSubmit,
+  handleSubmit: originalHandleSubmit,
   user,
 }: LayoutProps) {
   const [moodData, setMoodData] = useState<MoodData | null>(null);
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
+  const [historyTracker, setHistoryTracker] = useState<WeeklyTracker[]>([]);
+  const [refreshData, setRefreshData] = useState(0);
+
+  const fetchMoodHistory = useCallback(async () => {
+    try {
+      if (!user?.id) {
+        console.error('Failed to get user.id');
+        return;
+      }
+
+      const res = await fetch(`/api/mood-tracking/${user.id}/weekly`, {
+        headers: {
+          ...getAuthHeaders(),
+        },
+      });
+
+      if (!res.ok) throw new Error(`Response Status: ${res.status}`);
+
+      const data = await res.json();
+      setHistoryTracker(data);
+    } catch (err) {
+      console.error(`Error fetching weekly mood data: ${err}`);
+    }
+  }, [user?.id]);
+
+  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+    await originalHandleSubmit(event);
+    setRefreshData((prev) => prev + 1);
+  };
+
+  useEffect(() => {
+    fetchMoodHistory();
+  }, [fetchMoodHistory, refreshData]);
+
+  const generatePastWeek = (): { date: string; abbr: string }[] => {
+    const result = [];
+    const today = new Date();
+
+    for (let i = 6; i >= 0; i--) {
+      const day = new Date();
+      day.setDate(today.getDate() - i);
+
+      result.push({
+        date: day.toISOString().split('T')[0],
+        abbr: ['S', 'M', 'T', 'W', 'T', 'F', 'S'][day.getDay()],
+      });
+    }
+
+    return result;
+  };
+
+  const pastWeek = generatePastWeek();
 
   const handleOnChange = (value: CalendarValue) => {
     if (!(value instanceof Date)) return;
@@ -93,12 +150,29 @@ export function DesktopLayout({
           </div>
 
           <div className="desktop-row space-between day-tracker">
-            <div className="desktop-col justify-start items-start">
-              <p>Once you start logging, we will track your progress here.</p>
-            </div>
+            <div className="desktop-row w-full justify-between items-center">
+              {pastWeek.map((day) => {
+                const dayMood = historyTracker.find(
+                  (mood) =>
+                    new Date(mood.logDate).toISOString().split('T')[0] ===
+                    day.date
+                );
 
-            <div className="desktop-col justify-start items-end">
-              <p>Circle Here</p>
+                return (
+                  <div key={day.date} className="flex flex-col items-center">
+                    <img
+                      className="emoji-icon"
+                      src={
+                        dayMood
+                          ? dayMood.emojiPath
+                          : '/images/emoji/gray-neutral.svg'
+                      }
+                      alt="mood"
+                    />
+                    <p>{day.abbr}</p>
+                  </div>
+                );
+              })}
             </div>
           </div>
 
