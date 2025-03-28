@@ -9,8 +9,32 @@ type SignInProps = {
   setUser: (user: User | null) => void;
 };
 
+export const createDemoAccount = async () => {
+  try {
+    const res = await fetch('/api/auth/sign-up', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        firstName: 'Demo',
+        lastName: 'User',
+        email: 'demo@mindbloom.com',
+        password: 'MindBloomDemo',
+      }),
+    });
+
+    if (res.ok) {
+      console.log('Demo account created successfully');
+    } else {
+      console.log("Demo account already exists or couldn't be created");
+    }
+  } catch (err) {
+    console.error('Error creating demo account:', err);
+  }
+};
+
 export function SignIn({ setUser }: SignInProps) {
   const [error, setError] = useState<string>('');
+
   const navigate = useNavigate();
 
   const handleLogin = async (event: FormEvent<HTMLFormElement>) => {
@@ -51,6 +75,38 @@ export function SignIn({ setUser }: SignInProps) {
     } catch (err) {
       console.error('SignIn Error:', err);
       setError(err instanceof Error ? err.message : 'Failed to sign in');
+    }
+  };
+
+  const handleDemoLogin = async () => {
+    setError('');
+
+    const demoCredentials = {
+      email: 'demo@mindbloom.com',
+      password: 'MindBloomDemo',
+    };
+
+    try {
+      const res = await fetch('/api/auth/sign-in', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(demoCredentials),
+      });
+
+      if (!res.ok) {
+        throw new Error('Failed to access demo account');
+      }
+
+      const data = await res.json();
+      if (data.token) {
+        saveAuth(data.user, data.token);
+      }
+
+      setUser(data.user);
+      navigate('/app');
+    } catch (err) {
+      console.error('Demo Sign-In Error:', err);
+      setError('Failed to access demo account. Please try again later.');
     }
   };
 
@@ -111,6 +167,15 @@ export function SignIn({ setUser }: SignInProps) {
               className="cursor-pointer text-teal-600 hover:text-teal-500">
               Sign up now
             </Link>
+          </p>
+        </div>
+
+        <div className="line" />
+        <div className="reg-row justify-center items-center mt-4">
+          <p
+            className="cursor-pointer text-gray-300 hover:text-white"
+            onClick={handleDemoLogin}>
+            Try Demo Here!
           </p>
         </div>
       </div>

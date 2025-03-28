@@ -106,35 +106,6 @@ app.post('/api/auth/sign-in', async (req, res, next) => {
   }
 });
 
-app.post('/api/guest-sign-in', async (req, res, next) => {
-  try {
-    const uniqueEmail = `guest_${Date.now()}@guest.com`;
-
-    // Create an empty user
-    const sql = `
-      insert into "users" ("firstName", "lastName", "email", "password")
-      values('Guest', 'User', $1, '')
-      returning *;
-    `;
-    const [user] = (await db.query(sql, [uniqueEmail])).rows;
-
-    // Get the guest user
-    const progressSql = `
-      insert into progress ("userId", "totalPoints", "level", "currentStreak")
-      values ($1, 0, 1, 0)
-      returning *;
-    `;
-    const [progress] = (await db.query(progressSql, [user.userId])).rows;
-
-    res.status(201).json({
-      user,
-      progress,
-    });
-  } catch (err) {
-    next(err);
-  }
-});
-
 app.get('/api/progress/:userId', authMiddleware, async (req, res, next) => {
   try {
     const userId = req.params.userId;
