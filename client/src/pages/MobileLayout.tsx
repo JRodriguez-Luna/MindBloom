@@ -19,6 +19,7 @@ export function MobileLayout({
   openModal = () => {},
   closeModal = () => {},
   user,
+  error,
 }: LayoutProps) {
   const [refreshData, setRefreshData] = useState(0);
 
@@ -120,6 +121,13 @@ export function MobileLayout({
             className="custom-button cursor-pointer">
             Log Mood
           </button>
+          {error ? (
+            <div className="text-red-600">
+              Error! {error instanceof Error ? error.message : 'Unknown error'}
+            </div>
+          ) : (
+            <></>
+          )}
         </form>
       </Modal>
     </>

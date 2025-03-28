@@ -23,6 +23,7 @@ export function DesktopLayout({
   handleCharacterCount,
   handleSubmit: originalHandleSubmit,
   user,
+  error,
 }: LayoutProps) {
   const [moodData, setMoodData] = useState<MoodData | null>(null);
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
@@ -178,6 +179,14 @@ export function DesktopLayout({
                   className="custom-button cursor-pointer">
                   Log Mood
                 </button>
+                {error ? (
+                  <div className="text-red-600">
+                    Error!{' '}
+                    {error instanceof Error ? error.message : 'Unknown error'}
+                  </div>
+                ) : (
+                  <></>
+                )}
               </form>
             </div>
           </div>

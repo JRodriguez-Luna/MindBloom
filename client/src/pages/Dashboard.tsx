@@ -95,6 +95,7 @@ export function Dashboard({ user }: DashboardProps) {
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     try {
+      setError(undefined);
       event.preventDefault();
 
       if (selectEmoji === undefined) {
@@ -147,15 +148,7 @@ export function Dashboard({ user }: DashboardProps) {
   }, []);
 
   if (isLoading) {
-    return <div>Loading...</div>;
-  }
-
-  if (error) {
-    return (
-      <div>
-        Error! {error instanceof Error ? error.message : 'Unknown error'}
-      </div>
-    );
+    return <div className="flex justify-center">Loading...</div>;
   }
 
   return isDesktop ? (
@@ -168,6 +161,7 @@ export function Dashboard({ user }: DashboardProps) {
       handleCharacterCount={handleCharacterCount}
       handleSubmit={handleSubmit}
       user={user}
+      error={error}
     />
   ) : (
     <MobileLayout
@@ -182,6 +176,7 @@ export function Dashboard({ user }: DashboardProps) {
       openModal={openModal}
       closeModal={closeModal}
       user={user}
+      error={error}
     />
   );
 }
