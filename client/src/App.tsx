@@ -10,7 +10,6 @@ import { SignUp } from './pages/SignUp';
 import { useEffect, useState } from 'react';
 import { User } from './pages/Types';
 import { readUser } from './lib/auth';
-import { createDemoAccount } from './pages/SignIn';
 
 export default function App() {
   const [user, setUser] = useState<User | null>(null);
@@ -20,8 +19,6 @@ export default function App() {
     if (storedUser) {
       setUser(storedUser);
     }
-
-    createDemoAccount();
   }, []);
 
   return (

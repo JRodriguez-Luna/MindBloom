@@ -9,32 +9,8 @@ type SignInProps = {
   setUser: (user: User | null) => void;
 };
 
-export const createDemoAccount = async () => {
-  try {
-    const res = await fetch('/api/auth/sign-up', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        firstName: 'Demo',
-        lastName: 'User',
-        email: 'demo@mindbloom.com',
-        password: 'MindBloomDemo',
-      }),
-    });
-
-    if (res.ok) {
-      console.log('Demo account created successfully');
-    } else {
-      console.log("Demo account already exists or couldn't be created");
-    }
-  } catch (err) {
-    console.error('Error creating demo account:', err);
-  }
-};
-
 export function SignIn({ setUser }: SignInProps) {
   const [error, setError] = useState<string>('');
-
   const navigate = useNavigate();
 
   const handleLogin = async (event: FormEvent<HTMLFormElement>) => {

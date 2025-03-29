@@ -1,9 +1,7 @@
 -- Insert users (passwords are hashed for security)
 INSERT INTO "users" ("firstName", "lastName", "email", "password", "createdAt", "updatedAt")
 VALUES
-  ('John', 'Doe', 'john.doe@example.com', 'hashedpassword123', '2025-01-01 10:00:00', '2025-01-01 10:00:00'),
-  ('Jane', 'Smith', 'jane.smith@example.com', 'hashedpassword456', '2025-01-02 10:00:00', '2025-01-02 10:00:00'),
-  ('Alice', 'Johnson', 'alice.johnson@example.com', 'hashedpassword789', '2025-01-03 10:00:00', '2025-01-03 10:00:00');
+  ('Demo', 'User', 'demo@mindbloom.com', 'MindBloomDemo', '2025-03-28', '2025-03-28 00:00:00');
 
 -- Insert moods
 INSERT INTO "mood" ("moodName", "emojiPath", "createdAt")
@@ -27,24 +25,21 @@ VALUES
 -- Insert user challenges
 INSERT INTO "user_challenges" ("userId", "challengeId", "isCompleted", "completionDate", "createdAt")
 VALUES
-  (1, 1, false, NULL, '2025-01-01 10:00:00'),
-  (1, 2, false, '2025-01-02', '2025-01-01 10:00:00'),
-  (1, 3, false, NULL, '2025-01-01 10:00:00'),
-  (2, 1, false, '2025-01-02', '2025-01-02 10:00:00'),
-  (2, 4, false, NULL, '2025-01-02 10:00:00'),
-  (3, 5, false, '2025-01-31', '2025-01-03 10:00:00');
+  (1, 1, false, NULL, '2025-03-26 10:00:00'),
+  (1, 2, false, NULL, '2025-03-26 10:00:00'),
+  (1, 3, false, NULL, '2025-03-26 10:00:00'),
+  (1, 4, false, NULL, '2025-03-26 10:00:00'),
+  (1, 5, false, NULL, '2025-03-26 10:00:00'),
+  (1, 6, false, NULL, '2025-03-26 10:00:00');
 
 -- Insert mood logs
 INSERT INTO "mood_logs" ("userId", "moodId", "detail", "points", "logDate", "createdAt")
 VALUES
-  (1, 1, 'Had a good day at work and completed my challenges!', 15, '2025-01-01', '2025-01-01 10:00:00'),
-  (1, 4, 'Feeling okay today, looking forward to tomorrow.', 10, '2025-01-02', '2025-01-02 10:00:00'),
-  (2, 2, 'Stressed about work, but managed to do some journal.', 5, '2025-01-02', '2025-01-02 10:00:00'),
-  (3, 5, 'Happy with my progress this month and reflecting on it!', 20, '2025-01-03', '2025-01-03 10:00:00');
+  (1, 4, 'Started using MindBloom today! Feeling positive about this journey.', 20, '2025-03-26', '2025-03-26 14:30:00'),
+  (1, 5, 'Completed two challenges and feeling accomplished!', 25, '2025-03-27', '2025-03-27 18:45:00'),
+  (1, 4, 'Had a productive day and practiced mindfulness for 10 minutes.', 15, '2025-03-28', '2025-03-28 20:15:00');
 
 -- Insert progress data
 INSERT INTO "progress" ("userId", "totalPoints", "level", "currentStreak", "lastLogDate")
 VALUES
-  (1, 0, 1, 0, '2025-01-02'),
-  (2, 40, 1, 0, '2025-01-02'),
-  (3, 35, 1, 0, '2025-01-03');
+  (1, 150, 2, 3, '2025-03-28');
