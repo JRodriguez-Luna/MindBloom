@@ -40,4 +40,5 @@ export type LayoutProps = {
   openModal?: () => void;
   closeModal?: () => void;
   user: User | null;
+  error: unknown;
 };

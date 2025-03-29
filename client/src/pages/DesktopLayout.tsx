@@ -6,6 +6,7 @@ import './Calendar.css';
 import { useEffect, useState } from 'react';
 import { getAuthHeaders } from '../lib/auth';
 import { WeeklyMoodTracker } from '../components//WeeklyMoodTracker';
+import { ToastContainer, toast } from 'react-toastify';
 
 type ValuePiece = Date | null;
 type CalendarValue = ValuePiece | [ValuePiece, ValuePiece];
@@ -23,6 +24,7 @@ export function DesktopLayout({
   handleCharacterCount,
   handleSubmit: originalHandleSubmit,
   user,
+  error,
 }: LayoutProps) {
   const [moodData, setMoodData] = useState<MoodData | null>(null);
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
@@ -37,6 +39,13 @@ export function DesktopLayout({
     if (!(value instanceof Date)) return;
     setSelectedDate(value);
   };
+
+  useEffect(() => {
+    if (error) {
+      const message = error instanceof Error ? error.message : 'Unknown error';
+      toast.error(`Error! ${message}`);
+    }
+  }, [error]);
 
   useEffect(() => {
     async function getMoodData() {
@@ -178,6 +187,19 @@ export function DesktopLayout({
                   className="custom-button cursor-pointer">
                   Log Mood
                 </button>
+
+                <ToastContainer
+                  position="top-center"
+                  autoClose={3000}
+                  hideProgressBar={false}
+                  newestOnTop={false}
+                  closeOnClick
+                  rtl={false}
+                  pauseOnFocusLoss
+                  draggable
+                  pauseOnHover
+                  theme=""
+                />
               </form>
             </div>
           </div>
