@@ -4,8 +4,9 @@ import './MobileLayout.css';
 import { Link } from 'react-router-dom';
 import { LayoutProps } from './Types';
 import { Streaks } from './Streaks';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { WeeklyMoodTracker } from '../components/WeeklyMoodTracker';
+import { ToastContainer, toast } from 'react-toastify';
 
 export function MobileLayout({
   isOpen,
@@ -27,6 +28,13 @@ export function MobileLayout({
     await originalHandleSubmit(event);
     setRefreshData((prev) => prev + 1);
   };
+
+  useEffect(() => {
+    if (error) {
+      const message = error instanceof Error ? error.message : 'Unknown error';
+      toast.error(`Error! ${message}`);
+    }
+  }, [error]);
 
   return (
     <>
@@ -121,13 +129,19 @@ export function MobileLayout({
             className="custom-button cursor-pointer">
             Log Mood
           </button>
-          {error ? (
-            <div className="text-red-600">
-              Error! {error instanceof Error ? error.message : 'Unknown error'}
-            </div>
-          ) : (
-            <></>
-          )}
+
+          <ToastContainer
+            position="top-center"
+            autoClose={3000}
+            hideProgressBar={false}
+            newestOnTop={false}
+            closeOnClick
+            rtl={false}
+            pauseOnFocusLoss
+            draggable
+            pauseOnHover
+            theme=""
+          />
         </form>
       </Modal>
     </>
