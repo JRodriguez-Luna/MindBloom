@@ -54,6 +54,38 @@ export function SignIn({ setUser }: SignInProps) {
     }
   };
 
+  const handleDemoLogin = async () => {
+    setError('');
+
+    const demoCredentials = {
+      email: 'demo@mindbloom.com',
+      password: 'MindBloomDemo',
+    };
+
+    try {
+      const res = await fetch('/api/auth/sign-in', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(demoCredentials),
+      });
+
+      if (!res.ok) {
+        throw new Error('Failed to access demo account');
+      }
+
+      const data = await res.json();
+      if (data.token) {
+        saveAuth(data.user, data.token);
+      }
+
+      setUser(data.user);
+      navigate('/app');
+    } catch (err) {
+      console.error('Demo Sign-In Error:', err);
+      setError('Failed to access demo account. Please try again later.');
+    }
+  };
+
   return (
     <div className="reg-container">
       <div className="reg-col justify-center items-center">
@@ -111,6 +143,15 @@ export function SignIn({ setUser }: SignInProps) {
               className="cursor-pointer text-teal-600 hover:text-teal-500">
               Sign up now
             </Link>
+          </p>
+        </div>
+
+        <div className="line" />
+        <div className="reg-row justify-center items-center mt-4">
+          <p
+            className="cursor-pointer text-gray-300 hover:text-white"
+            onClick={handleDemoLogin}>
+            Try Demo Here!
           </p>
         </div>
       </div>
