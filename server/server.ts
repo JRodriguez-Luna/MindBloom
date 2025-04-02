@@ -384,6 +384,7 @@ app.get('/api/challenges', authMiddleware, async (req, res, next) => {
 });
 
 // Get users challenge status
+// Get users challenge status
 app.get(
   '/api/user-challenges/:userId',
   authMiddleware,
@@ -394,12 +395,26 @@ app.get(
         throw new ClientError(400, 'Invalid userId.');
       }
 
+      // challenges reset daily
+      const resetDailyChallengesSql = `
+        UPDATE user_challenges uc
+        SET "isCompleted" = false, "completionDate" = NULL
+        FROM challenges c
+        WHERE uc."challengeId" = c.id
+          AND uc."userId" = $1
+          AND uc."isCompleted" = true
+          AND c.frequency = 'daily'
+          AND uc."completionDate" < CURRENT_DATE
+      `;
+
+      await db.query(resetDailyChallengesSql, [userId]);
+
       const sql = `
-      select "challengeId", "isCompleted"
-      from user_challenges
-      where "userId" = $1
-      order by "challengeId" asc;
-    `;
+        select "challengeId", "isCompleted"
+        from user_challenges
+        where "userId" = $1
+        order by "challengeId" asc;
+      `;
 
       const userChallenges = (await db.query(sql, [userId])).rows;
       if (!userChallenges) {

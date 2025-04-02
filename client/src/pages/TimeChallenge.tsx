@@ -132,7 +132,7 @@ export function TimeChallenge({ user }: TimeChallengeProps) {
           <button
             className="text-3xl"
             onClick={() => navigate('/app/challenges')}>
-            <TiChevronLeft />
+            <TiChevronLeft className="cursor-pointer" />
           </button>
         </div>
         <div className="time-col justify-between items-center mt-6">
