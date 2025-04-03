@@ -98,7 +98,12 @@ export function ChallengeCard({
                             onClick={() => {
                               handleChallengeToggle(index);
                               handlePoints(challenge.points);
-                            }}>
+                            }}
+                            disabled={userChallenges.some(
+                              (uc) =>
+                                uc.challengeId === challenge.id &&
+                                uc.isCompleted === true
+                            )}>
                             <div className="challenge-detail challenge-row gap-6">
                               <img
                                 src={category.icon}
