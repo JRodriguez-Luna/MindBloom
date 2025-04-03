@@ -397,14 +397,14 @@ app.get(
 
       // challenges reset daily
       const resetDailyChallengesSql = `
-        UPDATE user_challenges uc
-        SET "isCompleted" = false, "completionDate" = NULL
-        FROM challenges c
-        WHERE uc."challengeId" = c.id
-          AND uc."userId" = $1
-          AND uc."isCompleted" = true
-          AND c.frequency = 'daily'
-          AND uc."completionDate" < CURRENT_DATE
+        update user_challenges uc
+        set "isCompleted" = false, "completionDate" = NULL
+        from challenges c
+        where uc."challengeId" = c.id
+          and uc."userId" = $1
+          and uc."isCompleted" = true
+          and c.frequency = 'daily'
+          and uc."completionDate" < CURRENT_DATE
       `;
 
       await db.query(resetDailyChallengesSql, [userId]);
